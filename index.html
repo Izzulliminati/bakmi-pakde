@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>Customer</title></head>
+<body>
+  <h2>🍜 Pesan Makanan</h2>
+  <button id="orderBtn">Pesan Bakmi Goreng</button>
+
+  <script type="module">
+    import { db } from "./firebase.js";
+    import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+
+    document.getElementById("orderBtn").addEventListener("click", async () => {
+      await addDoc(collection(db, "orders"), {
+        meja: "12",
+        items: [{ name: "Bakmi Goreng", qty: 1, price: 18000 }],
+        total: 18000,
+        createdAt: serverTimestamp()
+      });
+      alert("Pesanan terkirim!");
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Admin Dashboard</title>
+  </head>
+  <body>
+    <h2>Login Admin</h2>
+    <input id="email" placeholder="Email" />
+    <input id="password" type="password" />
+    <button id="loginBtn">Login</button>
+
+    <div id="dashboard" style="display: none">
+      <h2>📊 Pesanan Masuk</h2>
+      <div id="orders"></div>
+    </div>
+
+    <script type="module">
+      import { auth, db } from "./firebase.js";
+      import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
+      import {
+        collection,
+        onSnapshot,
+        orderBy,
+        query,
+      } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+
+      const loginBtn = document.getElementById("loginBtn");
+      const dashboard = document.getElementById("dashboard");
+      const ordersDiv = document.getElementById("orders");
+
+      loginBtn.addEventListener("click", async () => {
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+        try {
+          await signInWithEmailAndPassword(auth, email, password);
+          alert("Login berhasil!");
+          dashboard.style.display = "block";
+          startDashboard();
+        } catch (err) {
+          alert("Login gagal: " + err.message);
+        }
+      });
+
+      function startDashboard() {
+        const q = query(collection(db, "orders"), orderBy("createdAt", "desc"));
+        onSnapshot(q, (snapshot) => {
+          ordersDiv.innerHTML = "";
+          snapshot.forEach((doc) => {
+            const o = doc.data();
+            const div = document.createElement("div");
+            div.style =
+              "border:1px dashed #333; margin:10px; padding:10px; font-family:monospace; width:250px;";
+            div.innerHTML = `
+            <h3>WARUNG MAKAN</h3>
+            <p>Meja: ${o.meja}</p>
+            <hr>
+            ${o.items
+              .map((i) => `${i.qty}x ${i.name} - Rp${i.price * i.qty}`)
+              .join("<br>")}
+            <hr>
+            <b>Total: Rp${o.total}</b><br>
+            <button onclick="window.print()">🖨 Cetak Struk</button>
+          `;
+            ordersDiv.appendChild(div);
+          });
+        });
+      }
+    </script>
+  </body>
+</html>
