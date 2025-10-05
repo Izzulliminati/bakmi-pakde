@@ -1,71 +1,178 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="UTF-8" />
-    <title>Admin Dashboard</title>
-  </head>
-  <body>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>📊 Dashboard Admin - Warung Sederhana</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f7f7f7;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+    .login-box, .dashboard {
+      max-width: 600px;
+      margin: 60px auto;
+      background: #fff;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    }
+    h2 { text-align: center; color: #ff6b35; }
+    input {
+      width: 100%;
+      margin: 10px 0;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 15px;
+    }
+    button {
+      background: #ff6b35;
+      color: #fff;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      width: 100%;
+      font-weight: bold;
+    }
+    button:hover { background: #f35c24; }
+    .order-card {
+      background: #fff;
+      border: 1px solid #eee;
+      border-radius: 10px;
+      padding: 15px;
+      margin: 15px 0;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .order-card h3 {
+      margin: 0;
+      color: #222;
+    }
+    .order-card hr {
+      border: none;
+      border-top: 1px dashed #ccc;
+      margin: 10px 0;
+    }
+    .order-item {
+      font-family: monospace;
+      margin: 4px 0;
+    }
+    .btn-row {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+      gap: 8px;
+    }
+    .print-btn {
+      flex: 1;
+      background: #333;
+      color: #fff;
+      border: none;
+      padding: 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .delete-btn {
+      flex: 1;
+      background: #ff2e2e;
+      color: #fff;
+      border: none;
+      padding: 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .delete-btn:hover { background: #d62222; }
+    .category {
+      font-weight: bold;
+      color: #ff6b35;
+      font-size: 14px;
+      margin-bottom: 6px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-box" id="loginBox">
     <h2>Login Admin</h2>
-    <input id="email" placeholder="Email" />
-    <input id="password" type="password" />
+    <input id="email" placeholder="Email">
+    <input id="password" type="password" placeholder="Password">
     <button id="loginBtn">Login</button>
+  </div>
 
-    <div id="dashboard" style="display: none">
-      <h2>📊 Pesanan Masuk</h2>
-      <div id="orders"></div>
-    </div>
+  <div class="dashboard" id="dashboard" style="display:none;">
+    <h2>📦 Pesanan Masuk</h2>
+    <div id="orders"></div>
+  </div>
 
-    <script type="module">
-      import { auth, db } from "./firebase.js";
-      import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
-      import {
-        collection,
-        onSnapshot,
-        orderBy,
-        query,
-      } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+  <script type="module">
+    import { auth, db } from "./firebase.js";
+    import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
+    import { collection, onSnapshot, orderBy, query, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
 
-      const loginBtn = document.getElementById("loginBtn");
-      const dashboard = document.getElementById("dashboard");
-      const ordersDiv = document.getElementById("orders");
+    const loginBox = document.getElementById("loginBox");
+    const dashboard = document.getElementById("dashboard");
+    const loginBtn = document.getElementById("loginBtn");
+    const ordersDiv = document.getElementById("orders");
 
-      loginBtn.addEventListener("click", async () => {
-        const email = document.getElementById("email").value;
-        const password = document.getElementById("password").value;
-        try {
-          await signInWithEmailAndPassword(auth, email, password);
-          alert("Login berhasil!");
-          dashboard.style.display = "block";
-          startDashboard();
-        } catch (err) {
-          alert("Login gagal: " + err.message);
-        }
-      });
+    // === LOGIN HANDLER ===
+    loginBtn.addEventListener("click", async () => {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        loginBox.style.display = "none";
+        dashboard.style.display = "block";
+        startDashboard();
+      } catch (err) {
+        alert("Login gagal: " + err.message);
+      }
+    });
 
-      function startDashboard() {
-        const q = query(collection(db, "orders"), orderBy("createdAt", "desc"));
-        onSnapshot(q, (snapshot) => {
-          ordersDiv.innerHTML = "";
-          snapshot.forEach((doc) => {
-            const o = doc.data();
-            const div = document.createElement("div");
-            div.style =
-              "border:1px dashed #333; margin:10px; padding:10px; font-family:monospace; width:250px;";
-            div.innerHTML = `
-            <h3>WARUNG MAKAN</h3>
-            <p>Meja: ${o.meja}</p>
+    // === DASHBOARD REALTIME ===
+    function startDashboard() {
+      const q = query(collection(db, "orders"), orderBy("createdAt", "desc"));
+      onSnapshot(q, (snapshot) => {
+        ordersDiv.innerHTML = "";
+        snapshot.forEach((docSnap) => {
+          const o = docSnap.data();
+          const orderId = docSnap.id;
+          const div = document.createElement("div");
+          div.className = "order-card";
+          div.innerHTML = `
+            <h3>Pesanan Meja ${o.meja || "-"}</h3>
+            <div class="category">Kategori: ${o.kategori || "Umum"}</div>
             <hr>
-            ${o.items
-              .map((i) => `${i.qty}x ${i.name} - Rp${i.price * i.qty}`)
-              .join("<br>")}
+            ${o.items.map(i => `
+              <div class="order-item">${i.qty}x ${i.name} - Rp${i.price.toLocaleString()}</div>
+            `).join("")}
             <hr>
-            <b>Total: Rp${o.total}</b><br>
-            <button onclick="window.print()">🖨 Cetak Struk</button>
+            <b>Total: Rp${o.total.toLocaleString()}</b>
+            <div class="btn-row">
+              <button class="print-btn" onclick="window.print()">🖨 Cetak</button>
+              <button class="delete-btn" data-id="${orderId}">🗑 Hapus</button>
+            </div>
           `;
-            ordersDiv.appendChild(div);
+          ordersDiv.appendChild(div);
+        });
+
+        // === Tombol hapus pesanan ===
+        document.querySelectorAll(".delete-btn").forEach(btn => {
+          btn.addEventListener("click", async () => {
+            const id = btn.dataset.id;
+            if (confirm("Yakin mau hapus pesanan ini?")) {
+              await deleteDoc(doc(db, "orders", id));
+              alert("Pesanan dihapus ✅");
+            }
           });
         });
-      }
-    </script>
-  </body>
+      });
+    }
+  </script>
+
+</body>
 </html>
