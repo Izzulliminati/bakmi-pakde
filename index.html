@@ -8,7 +8,6 @@
       * {
         box-sizing: border-box;
       }
-
       body {
         font-family: "Poppins", sans-serif;
         background: #f8f9fa;
@@ -17,7 +16,6 @@
         color: #333;
       }
 
-      /* 🔹 Navbar */
       nav {
         background: linear-gradient(90deg, #800020, #a0002a);
         color: white;
@@ -33,23 +31,7 @@
         display: flex;
         align-items: center;
         gap: 10px;
-        font-size: 20px;
         margin: 0;
-      }
-      .nav-links {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-      }
-      .nav-links a {
-        color: white;
-        text-decoration: none;
-        font-weight: 500;
-        transition: 0.3s;
-        font-size: 14px;
-      }
-      .nav-links a:hover {
-        opacity: 0.8;
       }
       .cart {
         background: white;
@@ -60,10 +42,8 @@
         box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
         cursor: pointer;
         font-size: 14px;
-        white-space: nowrap;
       }
 
-      /* 🔹 Header */
       .header {
         text-align: center;
         margin-top: 30px;
@@ -75,17 +55,10 @@
         margin-bottom: 5px;
         font-family: cursive;
       }
-      .header p {
-        color: #666;
-        font-style: italic;
-        margin: 0;
-      }
 
-      /* 🔹 Filter kategori */
       .filters {
         text-align: center;
         margin: 20px 0;
-        padding: 0 20px;
         display: flex;
         justify-content: center;
         gap: 8px;
@@ -99,7 +72,6 @@
         padding: 8px 18px;
         cursor: pointer;
         transition: 0.3s;
-        font-size: 14px;
       }
       .filters button.active,
       .filters button:hover {
@@ -107,64 +79,74 @@
         color: white;
       }
 
-      /* 🔹 Menu cards */
       .menu-container {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
         gap: 20px;
         padding: 20px;
         max-width: 1200px;
-        margin: 0 auto;
+        margin: auto;
       }
+
+      /* === CARD STYLE === */
       .card {
         background: white;
-        border-radius: 12px;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        padding: 20px;
-        text-align: center;
+        border-radius: 16px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
         transition: 0.3s;
-        border: 1px solid #e0e0e0;
+        position: relative;
       }
       .card:hover {
         transform: translateY(-5px);
-        border-color: #800020;
-        box-shadow: 0 6px 15px rgba(128, 0, 32, 0.2);
+        box-shadow: 0 6px 18px rgba(128, 0, 32, 0.25);
       }
-      .emoji {
-        font-size: 48px;
+      .card img,
+      .card .emoji {
+        width: 100%;
+        height: 140px;
+        object-fit: cover;
+        background: #fff7f7;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 60px;
       }
-      .name {
+      .card-content {
+        padding: 12px 15px 18px;
+        text-align: center;
+      }
+      .card-content .name {
+        font-weight: 600;
+        font-size: 16px;
+        color: #222;
+        margin-bottom: 6px;
+      }
+      .card-content .price {
         font-weight: bold;
-        font-size: 18px;
-        margin-top: 10px;
-        color: #333;
-      }
-      .desc {
-        color: #666;
-        font-size: 13px;
-        margin: 5px 0;
-      }
-      .price {
         color: #800020;
-        font-weight: bold;
-        margin: 10px 0;
-        font-size: 18px;
+        font-size: 15px;
       }
       .addBtn {
+        position: absolute;
+        bottom: 12px;
+        right: 12px;
         background: #800020;
-        border: none;
         color: white;
-        padding: 8px 18px;
-        border-radius: 8px;
+        border: none;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        font-size: 20px;
         cursor: pointer;
-        font-weight: bold;
-        transition: 0.3s;
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+        transition: 0.2s;
       }
       .addBtn:hover {
         background: #600018;
+        transform: scale(1.05);
       }
 
-      /* 🔹 Cart Modal */
       .modal {
         display: none;
         position: fixed;
@@ -190,53 +172,6 @@
         position: relative;
         border: 2px solid #800020;
       }
-      .modal-content h3 {
-        text-align: center;
-        margin-bottom: 15px;
-        color: #800020;
-      }
-      .cart-item {
-        display: flex;
-        justify-content: space-between;
-        margin: 8px 0;
-        border-bottom: 1px solid #e0e0e0;
-        padding-bottom: 5px;
-        gap: 10px;
-        flex-wrap: wrap;
-      }
-      .cart-item span {
-        font-size: 14px;
-        color: #333;
-      }
-      .remove {
-        background: none;
-        border: none;
-        color: #ff6b6b;
-        font-size: 14px;
-        cursor: pointer;
-      }
-      .total {
-        text-align: right;
-        font-weight: bold;
-        margin-top: 10px;
-        color: #800020;
-        font-size: 18px;
-      }
-      .checkout {
-        background: #800020;
-        color: white;
-        border: none;
-        padding: 10px 15px;
-        border-radius: 8px;
-        width: 100%;
-        margin-top: 15px;
-        cursor: pointer;
-        font-weight: bold;
-        transition: 0.3s;
-      }
-      .checkout:hover {
-        background: #600018;
-      }
       .closeBtn {
         background: none;
         border: none;
@@ -248,6 +183,53 @@
         color: #800020;
       }
 
+      .cart-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 10px 0;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 5px;
+      }
+      .qty-controls {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .qty-btn {
+        background: #800020;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 25px;
+        height: 25px;
+        font-size: 16px;
+        cursor: pointer;
+        line-height: 0;
+      }
+      .qty-btn:hover {
+        background: #600018;
+      }
+
+      .checkout {
+        background: #800020;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 8px;
+        width: 100%;
+        margin-top: 15px;
+        cursor: pointer;
+        font-weight: bold;
+      }
+      .total {
+        text-align: right;
+        font-weight: bold;
+        margin-top: 10px;
+        color: #800020;
+        font-size: 18px;
+      }
+
       input.mejaInput,
       textarea.catatanInput {
         width: 100%;
@@ -255,101 +237,13 @@
         margin-top: 10px;
         border: 1px solid #ddd;
         border-radius: 6px;
-        font-family: inherit;
         background: white;
-        color: #333;
-      }
-      textarea.catatanInput {
-        height: 60px;
-        resize: none;
-      }
-
-      /* 🔹 Responsive Design */
-      @media (max-width: 768px) {
-        nav {
-          padding: 12px 15px;
-        }
-        nav h1 {
-          font-size: 18px;
-        }
-        .nav-links {
-          order: 3;
-          width: 100%;
-          justify-content: center;
-        }
-        .nav-links a {
-          font-size: 13px;
-        }
-        .header h2 {
-          font-size: 24px;
-        }
-        .menu-container {
-          grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-          gap: 15px;
-          padding: 15px;
-        }
-        .card {
-          padding: 15px;
-        }
-        .emoji {
-          font-size: 40px;
-        }
-        .name {
-          font-size: 16px;
-        }
-        .filters button {
-          padding: 6px 14px;
-          font-size: 13px;
-        }
-        .modal-content {
-          padding: 15px;
-        }
-      }
-
-      @media (max-width: 480px) {
-        nav h1 {
-          font-size: 16px;
-        }
-        .cart {
-          padding: 6px 12px;
-          font-size: 13px;
-        }
-        .header h2 {
-          font-size: 20px;
-        }
-        .menu-container {
-          grid-template-columns: 1fr;
-          padding: 10px;
-        }
-        .filters {
-          gap: 6px;
-        }
-        .filters button {
-          padding: 6px 12px;
-          font-size: 12px;
-        }
-      }
-
-      .section-title {
-        text-align: center;
-        color: #800020;
-        font-size: 24px;
-        margin: 30px 0 10px;
-        font-family: cursive;
       }
     </style>
   </head>
-
   <body>
-    <!-- 🔹 Navbar -->
     <nav>
-      <h1><span>🍜</span> Bakmi Jogja</h1>
-      <div class="nav-links">
-        <a href="#">Beranda</a>
-        <a href="#">Menu</a>
-        <a href="#">Tentang</a>
-        <a href="#">Kontak</a>
-      </div>
+      <h1>🍜 Bakmi Jogja</h1>
       <div class="cart" id="cartBtn">
         🛒 Keranjang (<span id="cartCount">0</span>)
       </div>
@@ -360,7 +254,6 @@
       <p>Bakmi Jogja mbah Karso ngumpet</p>
     </div>
 
-    <!-- 🔹 Filter kategori -->
     <div class="filters">
       <button class="active" data-category="all">Semua</button>
       <button data-category="makanan">Makanan</button>
@@ -369,10 +262,9 @@
       <button data-category="minuman">Minuman</button>
     </div>
 
-    <!-- 🔹 Menu list -->
     <div class="menu-container" id="menuContainer"></div>
 
-    <!-- 🔹 Cart Modal -->
+    <!-- Modal keranjang -->
     <div class="modal" id="cartModal">
       <div class="modal-content">
         <button class="closeBtn" id="closeModal">&times;</button>
@@ -394,12 +286,16 @@
       </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script type="module">
       import { db } from "./firebase.js";
       import {
         collection,
         addDoc,
         serverTimestamp,
+        onSnapshot,
+        query,
+        orderBy,
       } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
 
       const menuContainer = document.getElementById("menuContainer");
@@ -414,203 +310,75 @@
       const catatanInput = document.getElementById("catatanInput");
 
       let cart = [];
+      let menu = [];
 
-      const menu = [
-        // Makanan
-        {
-          name: "Nasi Goreng Biasa",
-          price: 17000,
-          emoji: "🍚",
-          cat: "makanan",
-        },
-        {
-          name: "Nasi Goreng Spesial",
-          price: 20000,
-          emoji: "🍚",
-          cat: "makanan",
-        },
-        {
-          name: "Nasi Goreng Balungan",
-          price: 19000,
-          emoji: "🍚",
-          cat: "makanan",
-        },
-        { name: "Nasi Putih", price: 5000, emoji: "🍚", cat: "makanan" },
-        { name: "Magelangan", price: 17000, emoji: "🍜", cat: "makanan" },
-        {
-          name: "Sego / Nasi Godog",
-          price: 17000,
-          emoji: "🍲",
-          cat: "makanan",
-        },
-        {
-          name: "Sego Godog Balungan",
-          price: 19000,
-          emoji: "🍲",
-          cat: "makanan",
-        },
-        {
-          name: "Bakmi / Bihun Goreng",
-          price: 17000,
-          emoji: "🍜",
-          cat: "makanan",
-        },
-        {
-          name: "Bakmi / Bihun Nyemek",
-          price: 17000,
-          emoji: "🍜",
-          cat: "makanan",
-        },
-        {
-          name: "Bakmi / Bihun Godog",
-          price: 17000,
-          emoji: "🍜",
-          cat: "makanan",
-        },
-        {
-          name: "Bakmi / Bihun Godog / Goreng Balungan",
-          price: 19000,
-          emoji: "🍜",
-          cat: "makanan",
-        },
-        { name: "Tongseng Ayam", price: 20000, emoji: "🍗", cat: "makanan" },
-        {
-          name: "Tongseng Balungan",
-          price: 19000,
-          emoji: "🍖",
-          cat: "makanan",
-        },
-        { name: "Sop Balungan", price: 19000, emoji: "🍲", cat: "makanan" },
-
-        // Telor Bebek
-        {
-          name: "Bakmi /Bihun Godog",
-          price: 20000,
-          emoji: "🥚",
-          cat: "telor-bebek",
-        },
-        {
-          name: "Bakmi /Bihun Nyemek",
-          price: 20000,
-          emoji: "🥚",
-          cat: "telor-bebek",
-        },
-        {
-          name: "Bakmi /Bihun Goreng",
-          price: 20000,
-          emoji: "🥚",
-          cat: "telor-bebek",
-        },
-        {
-          name: "Bakmi / Bihun Godog / Goreng Balungan",
-          price: 23000,
-          emoji: "🥚",
-          cat: "telor-bebek",
-        },
-
-        // Tambahan
-        {
-          name: "Kepala, Brutu, Ati Ampela",
-          price: 5000,
-          emoji: "🍖",
-          cat: "tambahan",
-        },
-        { name: "Paha", price: 9000, emoji: "🍗", cat: "tambahan" },
-        { name: "Sayap", price: 7000, emoji: "🍗", cat: "tambahan" },
-
-        // Minuman
-        { name: "Wedang Teh Manis", price: 5000, emoji: "🍵", cat: "minuman" },
-        { name: "Wedang Teh Serai", price: 7000, emoji: "🍵", cat: "minuman" },
-        { name: "Wedang Teh Kampul", price: 6000, emoji: "🍵", cat: "minuman" },
-        { name: "Wedang Teh Tawar", price: 2000, emoji: "🍵", cat: "minuman" },
-        {
-          name: "Wedang Teh Gula Batu",
-          price: 6000,
-          emoji: "🍵",
-          cat: "minuman",
-        },
-        {
-          name: "Wedang Teh Dekok / Poci",
-          price: 12000,
-          emoji: "🫖",
-          cat: "minuman",
-        },
-        { name: "Kopi", price: 5000, emoji: "☕", cat: "minuman" },
-        { name: "Wedang Tape", price: 7000, emoji: "🥃", cat: "minuman" },
-        { name: "Wedang Jeruk", price: 6000, emoji: "🍊", cat: "minuman" },
-        { name: "Wedang Jahe", price: 5000, emoji: "🫚", cat: "minuman" },
-        { name: "Wedang Jahe Jeruk", price: 7000, emoji: "🍊", cat: "minuman" },
-        { name: "Wedang Ronde", price: 9000, emoji: "🍡", cat: "minuman" },
-        { name: "Wedang Uwuh", price: 7000, emoji: "🍵", cat: "minuman" },
-        { name: "Susu Jahe", price: 7000, emoji: "🥛", cat: "minuman" },
-        { name: "Es Jeruk", price: 7000, emoji: "🧊", cat: "minuman" },
-        { name: "Es Teh", price: 6000, emoji: "🧋", cat: "minuman" },
-        { name: "Es Teh Tawar", price: 3000, emoji: "🧋", cat: "minuman" },
-        { name: "Es Susu", price: 7000, emoji: "🥛", cat: "minuman" },
-        { name: "Es Susu Jahe", price: 8000, emoji: "🥛", cat: "minuman" },
-        { name: "Es Tape", price: 8000, emoji: "🧊", cat: "minuman" },
-        { name: "Air Es", price: 1000, emoji: "🧊", cat: "minuman" },
-      ];
+      const menuQuery = query(collection(db, "menu"), orderBy("name", "asc"));
+      onSnapshot(menuQuery, (snapshot) => {
+        menu = [];
+        snapshot.forEach((doc) => menu.push({ id: doc.id, ...doc.data() }));
+        renderMenu();
+      });
 
       function renderMenu(category = "all") {
         menuContainer.innerHTML = "";
         const filtered =
           category === "all" ? menu : menu.filter((m) => m.cat === category);
-
-        // Group by category for better display
-        const categories = {
-          makanan: "🍜 Makanan",
-          "telor-bebek": "🥚 Telor Bebek",
-          tambahan: "🍖 Tambahan",
-          minuman: "🍵 Minuman",
-        };
-
-        if (category === "all") {
-          Object.keys(categories).forEach((cat) => {
-            const catItems = menu.filter((m) => m.cat === cat);
-            if (catItems.length > 0) {
-              const titleDiv = document.createElement("div");
-              titleDiv.className = "section-title";
-              titleDiv.style.gridColumn = "1 / -1";
-              titleDiv.textContent = categories[cat];
-              menuContainer.appendChild(titleDiv);
-
-              catItems.forEach((item) => {
-                menuContainer.appendChild(createCard(item));
-              });
-            }
-          });
-        } else {
-          filtered.forEach((item) => {
-            menuContainer.appendChild(createCard(item));
-          });
-        }
-      }
-
-      function createCard(item) {
-        const div = document.createElement("div");
-        div.className = "card";
-        div.innerHTML = `
-          <div class="emoji">${item.emoji}</div>
+        filtered.forEach((item) => {
+          const div = document.createElement("div");
+          div.className = "card";
+          const imageHTML = item.imageBase64
+            ? `<img src="${item.imageBase64}" alt="${item.name}">`
+            : `<div class="emoji">${item.emoji || "🍽️"}</div>`;
+          div.innerHTML = `
+        ${imageHTML}
+        <div class="card-content">
           <div class="name">${item.name}</div>
           <div class="price">Rp ${item.price.toLocaleString()}</div>
-          <button class="addBtn">Tambah</button>
-        `;
-        div
-          .querySelector(".addBtn")
-          .addEventListener("click", () => addToCart(item));
-        return div;
+        </div>
+        <button class="addBtn">+</button>
+      `;
+          div
+            .querySelector(".addBtn")
+            .addEventListener("click", () => addToCart(item));
+          menuContainer.appendChild(div);
+        });
       }
 
+      document.querySelectorAll(".filters button").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          document
+            .querySelectorAll(".filters button")
+            .forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          renderMenu(btn.dataset.category);
+        });
+      });
+
       function addToCart(item) {
-        const exist = cart.find((c) => c.name === item.name);
+        const exist = cart.find((c) => c.id === item.id);
         if (exist) exist.qty++;
         else cart.push({ ...item, qty: 1 });
         updateCart();
+
+        // Notifikasi item ditambahkan
+        Swal.fire({
+          toast: true,
+          position: "top-end",
+          icon: "success",
+          title: `${item.name} ditambahkan!`,
+          showConfirmButton: false,
+          timer: 1500,
+          timerProgressBar: true,
+          background: "#fff8f8",
+          color: "#800020",
+        });
       }
 
-      function removeFromCart(name) {
-        cart = cart.filter((c) => c.name !== name);
+      function changeQty(id, amount) {
+        const item = cart.find((c) => c.id === id);
+        if (!item) return;
+        item.qty += amount;
+        if (item.qty <= 0) cart = cart.filter((c) => c.id !== id);
         updateCart();
       }
 
@@ -625,23 +393,49 @@
           const div = document.createElement("div");
           div.className = "cart-item";
           div.innerHTML = `
-          <span>${item.emoji} ${item.name} x${item.qty}</span>
-          <span>Rp ${subtotal.toLocaleString()} <button class="remove">❌</button></span>
-        `;
+        <div>
+          <b>${item.name}</b>
+        </div>
+        <div class="qty-controls">
+          <button class="qty-btn" data-action="minus">−</button>
+          <span>${item.qty}</span>
+          <button class="qty-btn" data-action="plus">+</button>
+          <span>Rp ${subtotal.toLocaleString()}</span>
+        </div>
+      `;
           div
-            .querySelector(".remove")
-            .addEventListener("click", () => removeFromCart(item.name));
+            .querySelector('[data-action="minus"]')
+            .addEventListener("click", () => changeQty(item.id, -1));
+          div
+            .querySelector('[data-action="plus"]')
+            .addEventListener("click", () => changeQty(item.id, 1));
           cartList.appendChild(div);
         });
+
         cartTotal.textContent = "Total: Rp " + total.toLocaleString();
       }
 
-      // 🔹 Checkout ke Firestore
       checkoutBtn.addEventListener("click", async () => {
         const meja = mejaInput.value.trim();
         const catatan = catatanInput.value.trim();
-        if (!meja) return alert("Masukkan nomor meja dulu!");
-        if (cart.length === 0) return alert("Keranjang kosong!");
+        if (!meja) {
+          Swal.fire({
+            icon: "warning",
+            title: "Nomor Meja Kosong!",
+            text: "Silakan isi nomor meja terlebih dahulu 🍽️",
+            confirmButtonColor: "#800020",
+          });
+          return;
+        }
+        if (cart.length === 0) {
+          Swal.fire({
+            icon: "info",
+            title: "Keranjang Kosong!",
+            text: "Tambahkan menu dulu sebelum checkout 😋",
+            confirmButtonColor: "#800020",
+          });
+          return;
+        }
 
         const total = cart.reduce((a, b) => a + b.qty * b.price, 0);
         await addDoc(collection(db, "orders"), {
@@ -656,23 +450,24 @@
           createdAt: serverTimestamp(),
         });
 
-        alert("Pesanan dikirim ✅");
+        // ✅ Custom Notifikasi Pesanan Dikirim
+        Swal.fire({
+          icon: "success",
+          title: "Pesanan Dikirim!",
+          text: "Pesanan kamu sudah masuk ke dapur Mbah Karso 🍜🔥",
+          background: "#fff8f8",
+          color: "#800020",
+          confirmButtonColor: "#800020",
+          showConfirmButton: false,
+          timer: 2500,
+          timerProgressBar: true,
+        });
+
         cart = [];
         mejaInput.value = "";
         catatanInput.value = "";
         updateCart();
         cartModal.classList.remove("show");
-      });
-
-      // 🔹 Event listeners
-      document.querySelectorAll(".filters button").forEach((btn) => {
-        btn.addEventListener("click", () => {
-          document
-            .querySelectorAll(".filters button")
-            .forEach((b) => b.classList.remove("active"));
-          btn.classList.add("active");
-          renderMenu(btn.dataset.category);
-        });
       });
 
       cartBtn.addEventListener("click", () => cartModal.classList.add("show"));
@@ -682,8 +477,6 @@
       cartModal.addEventListener("click", (e) => {
         if (e.target === cartModal) cartModal.classList.remove("show");
       });
-
-      renderMenu();
     </script>
   </body>
 </html>
