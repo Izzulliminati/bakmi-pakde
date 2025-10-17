@@ -1,638 +1,743 @@
 <!DOCTYPE html>
 <html lang="id">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>📊 Dashboard Admin - Kelola Menu</title>
-  <style>
-    * { box-sizing: border-box; }
-    
-    body {
-      font-family: 'Poppins', sans-serif;
-      background: #f7f7f7;
-      margin: 0;
-      padding: 0;
-      color: #333;
-    }
-    
-    .container {
-      max-width: 1200px;
-      margin: 20px auto;
-      padding: 20px;
-    }
-    
-    .login-box {
-      max-width: 400px;
-      margin: 60px auto;
-      background: #fff;
-      padding: 25px;
-      border-radius: 10px;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.08);
-    }
-    
-    h2 {
-      text-align: center;
-      color: #800020;
-      margin-bottom: 20px;
-    }
-    
-    .tabs {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
-      border-bottom: 2px solid #e0e0e0;
-    }
-    
-    .tab {
-      padding: 10px 20px;
-      background: none;
-      border: none;
-      cursor: pointer;
-      font-weight: 500;
-      color: #666;
-      border-bottom: 3px solid transparent;
-      transition: 0.3s;
-    }
-    
-    .tab.active {
-      color: #800020;
-      border-bottom-color: #800020;
-    }
-    
-    .tab-content {
-      display: none;
-    }
-    
-    .tab-content.active {
-      display: block;
-    }
-    
-    input, select, textarea {
-      width: 100%;
-      margin: 10px 0;
-      padding: 12px;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      font-size: 15px;
-      font-family: inherit;
-    }
-    
-    textarea {
-      resize: vertical;
-      min-height: 60px;
-    }
-    
-    button {
-      background: #800020;
-      color: #fff;
-      padding: 10px 15px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: bold;
-      transition: 0.3s;
-    }
-    
-    button:hover {
-      background: #600018;
-    }
-    
-    .btn-secondary {
-      background: #666;
-    }
-    
-    .btn-secondary:hover {
-      background: #444;
-    }
-    
-    .btn-danger {
-      background: #ff2e2e;
-    }
-    
-    .btn-danger:hover {
-      background: #d62222;
-    }
-
-    .btn-success {
-      background: #28a745;
-    }
-
-    .btn-success:hover {
-      background: #218838;
-    }
-
-    .btn-info {
-      background: #17a2b8;
-    }
-
-    .btn-info:hover {
-      background: #138496;
-    }
-    
-    .menu-table {
-      width: 100%;
-      background: white;
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    }
-    
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    
-    th, td {
-      padding: 12px;
-      text-align: left;
-      border-bottom: 1px solid #eee;
-    }
-    
-    th {
-      background: #800020;
-      color: white;
-      font-weight: 600;
-    }
-    
-    tr:hover {
-      background: #f9f9f9;
-    }
-    
-    .menu-image {
-      width: 60px;
-      height: 60px;
-      object-fit: cover;
-      border-radius: 8px;
-      border: 2px solid #e0e0e0;
-    }
-    
-    .actions {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-    
-    .btn-small {
-      padding: 6px 12px;
-      font-size: 13px;
-    }
-    
-    .modal {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.6);
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-      padding: 20px;
-    }
-    
-    .modal.show {
-      display: flex;
-    }
-    
-    .modal-content {
-      background: white;
-      padding: 25px;
-      border-radius: 12px;
-      width: 100%;
-      max-width: 500px;
-      max-height: 90vh;
-      overflow-y: auto;
-    }
-    
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-    
-    .close-btn {
-      background: none;
-      color: #800020;
-      font-size: 24px;
-      padding: 0;
-      width: 30px;
-      height: 30px;
-    }
-    
-    .form-group {
-      margin-bottom: 15px;
-    }
-    
-    .form-group label {
-      display: block;
-      margin-bottom: 5px;
-      font-weight: 500;
-      color: #333;
-    }
-    
-    .image-upload-area {
-      border: 2px dashed #ddd;
-      border-radius: 8px;
-      padding: 20px;
-      text-align: center;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-    
-    .image-upload-area:hover {
-      border-color: #800020;
-      background: #f9f9f9;
-    }
-    
-    .image-upload-area.dragover {
-      border-color: #800020;
-      background: #fff5f5;
-    }
-    
-    .preview-image {
-      max-width: 100%;
-      max-height: 200px;
-      margin-top: 10px;
-      border-radius: 8px;
-    }
-    
-    .order-card {
-      background: white;
-      border-radius: 10px;
-      padding: 15px;
-      margin: 15px 0;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    }
-    
-    .order-card h3 {
-      color: #800020;
-      margin: 0 0 10px 0;
-    }
-    
-    .order-item {
-      font-family: monospace;
-      margin: 4px 0;
-    }
-    
-    .catatan-box {
-      background: #fff9e6;
-      border-left: 3px solid #ffb84d;
-      padding: 10px;
-      margin: 10px 0;
-      border-radius: 5px;
-      font-style: italic;
-      color: #666;
-    }
-    
-    .logout-btn {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-    }
-    
-    #imagePreview {
-      display: none;
-    }
-    
-    .warning {
-      background: #fff3cd;
-      border: 1px solid #ffc107;
-      color: #856404;
-      padding: 10px;
-      border-radius: 6px;
-      margin-bottom: 15px;
-      font-size: 13px;
-    }
-
-    .export-section {
-      background: white;
-      padding: 15px;
-      border-radius: 10px;
-      margin-bottom: 20px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    /* Print Styles */
-    @media print {
-      body * {
-        visibility: hidden;
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>📊 Dashboard Admin - Kelola Menu</title>
+    <style>
+      * {
+        box-sizing: border-box;
       }
-      #strukPrint, #strukPrint * {
-        visibility: visible;
+
+      body {
+        font-family: "Poppins", sans-serif;
+        background: #f7f7f7;
+        margin: 0;
+        padding: 0;
+        color: #333;
       }
-      #strukPrint {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 80mm;
-      }
-    }
 
-    .struk-container {
-      font-family: 'Courier New', monospace;
-      width: 80mm;
-      padding: 10px;
-      background: white;
-    }
-
-    .struk-header {
-      text-align: center;
-      border-bottom: 2px dashed #000;
-      padding-bottom: 10px;
-      margin-bottom: 10px;
-    }
-
-    .struk-header h2 {
-      margin: 5px 0;
-      font-size: 18px;
-    }
-
-    .struk-body {
-      font-size: 12px;
-    }
-
-    .struk-item {
-      display: flex;
-      justify-content: space-between;
-      margin: 5px 0;
-    }
-
-    .struk-footer {
-      border-top: 2px dashed #000;
-      margin-top: 10px;
-      padding-top: 10px;
-      text-align: center;
-    }
-
-    .struk-total {
-      font-size: 14px;
-      font-weight: bold;
-      margin: 10px 0;
-    }
-    
-    @media (max-width: 768px) {
       .container {
-        padding: 10px;
+        max-width: 1200px;
+        margin: 20px auto;
+        padding: 20px;
       }
-      
+
+      .login-box {
+        max-width: 400px;
+        margin: 60px auto;
+        background: #fff;
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+      }
+
+      h2 {
+        text-align: center;
+        color: #800020;
+        margin-bottom: 20px;
+      }
+
+      .tabs {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+        border-bottom: 2px solid #e0e0e0;
+      }
+
+      .tab {
+        padding: 10px 20px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-weight: 500;
+        color: #666;
+        border-bottom: 3px solid transparent;
+        transition: 0.3s;
+      }
+
+      .tab.active {
+        color: #800020;
+        border-bottom-color: #800020;
+      }
+
+      .tab-content {
+        display: none;
+      }
+
+      .tab-content.active {
+        display: block;
+      }
+
+      input,
+      select,
+      textarea {
+        width: 100%;
+        margin: 10px 0;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 15px;
+        font-family: inherit;
+      }
+
+      textarea {
+        resize: vertical;
+        min-height: 60px;
+      }
+
+      button {
+        background: #800020;
+        color: #fff;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: 0.3s;
+      }
+
+      button:hover {
+        background: #600018;
+      }
+
+      .btn-secondary {
+        background: #666;
+      }
+
+      .btn-secondary:hover {
+        background: #444;
+      }
+
+      .btn-danger {
+        background: #ff2e2e;
+      }
+
+      .btn-danger:hover {
+        background: #d62222;
+      }
+
+      .btn-success {
+        background: #28a745;
+      }
+
+      .btn-success:hover {
+        background: #218838;
+      }
+
+      .btn-info {
+        background: #17a2b8;
+      }
+
+      .btn-info:hover {
+        background: #138496;
+      }
+
+      .menu-table {
+        width: 100%;
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      }
+
       table {
-        font-size: 14px;
+        width: 100%;
+        border-collapse: collapse;
       }
-      
-      th, td {
-        padding: 8px;
+
+      th,
+      td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #eee;
       }
-      
-      .actions {
-        flex-direction: column;
+
+      th {
+        background: #800020;
+        color: white;
+        font-weight: 600;
       }
-      
+
+      tr:hover {
+        background: #f9f9f9;
+      }
+
       .menu-image {
-        width: 50px;
-        height: 50px;
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 2px solid #e0e0e0;
+      }
+
+      .actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .btn-small {
+        padding: 6px 12px;
+        font-size: 13px;
+      }
+
+      .modal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.6);
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        padding: 20px;
+      }
+
+      .modal.show {
+        display: flex;
+      }
+
+      .modal-content {
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        width: 100%;
+        max-width: 500px;
+        max-height: 90vh;
+        overflow-y: auto;
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      .close-btn {
+        background: none;
+        color: #800020;
+        font-size: 24px;
+        padding: 0;
+        width: 30px;
+        height: 30px;
+      }
+
+      .form-group {
+        margin-bottom: 15px;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 500;
+        color: #333;
+      }
+
+      .image-upload-area {
+        border: 2px dashed #ddd;
+        border-radius: 8px;
+        padding: 20px;
+        text-align: center;
+        cursor: pointer;
+        transition: 0.3s;
+      }
+
+      .image-upload-area:hover {
+        border-color: #800020;
+        background: #f9f9f9;
+      }
+
+      .image-upload-area.dragover {
+        border-color: #800020;
+        background: #fff5f5;
+      }
+
+      .preview-image {
+        max-width: 100%;
+        max-height: 200px;
+        margin-top: 10px;
+        border-radius: 8px;
+      }
+
+      .order-card {
+        background: white;
+        border-radius: 10px;
+        padding: 15px;
+        margin: 15px 0;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      }
+
+      .order-card h3 {
+        color: #800020;
+        margin: 0 0 10px 0;
+      }
+
+      .order-item {
+        font-family: monospace;
+        margin: 4px 0;
+      }
+
+      .catatan-box {
+        background: #fff9e6;
+        border-left: 3px solid #ffb84d;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 5px;
+        font-style: italic;
+        color: #666;
+      }
+
+      .logout-btn {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+      }
+
+      #imagePreview {
+        display: none;
+      }
+
+      .warning {
+        background: #fff3cd;
+        border: 1px solid #ffc107;
+        color: #856404;
+        padding: 10px;
+        border-radius: 6px;
+        margin-bottom: 15px;
+        font-size: 13px;
       }
 
       .export-section {
-        flex-direction: column;
+        background: white;
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
       }
-    }
-  </style>
-</head>
-<body>
 
-  <!-- Login Box -->
-  <div class="login-box" id="loginBox">
-    <h2>Login Admin</h2>
-    <input id="email" type="email" placeholder="Email">
-    <input id="password" type="password" placeholder="Password">
-    <button id="loginBtn" style="width: 100%;">Login</button>
-  </div>
+      /* Print Styles */
+      @media print {
+        body * {
+          visibility: hidden;
+        }
+        #strukPrint,
+        #strukPrint * {
+          visibility: visible;
+        }
+        #strukPrint {
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 80mm;
+        }
+      }
 
-  <!-- Dashboard -->
-  <div class="container" id="dashboard" style="display:none;">
-    <button class="logout-btn btn-secondary" id="logoutBtn">Logout</button>
-    
-    <h2>📊 Dashboard Admin</h2>
-    
-    <div class="tabs">
-      <button class="tab active" data-tab="orders">Pesanan</button>
-      <button class="tab" data-tab="menu">Kelola Menu</button>
-    </div>
-    
-    <!-- Tab Pesanan -->
-    <div class="tab-content active" id="ordersTab">
-      <div class="export-section">
-        <h3 style="margin: 0;">Daftar Pesanan</h3>
-        <button id="exportExcelBtn" class="btn-success">📊 Export ke Excel</button>
-      </div>
-      <div id="ordersList"></div>
-    </div>
-    
-    <!-- Tab Kelola Menu -->
-    <div class="tab-content" id="menuTab">
-      <button id="addMenuBtn" style="margin-bottom: 15px;">➕ Tambah Menu Baru</button>
-      
-      <div class="menu-table">
-        <table>
-          <thead>
-            <tr>
-              <th>Gambar</th>
-              <th>Nama</th>
-              <th>Harga</th>
-              <th>Kategori</th>
-              <th>Aksi</th>
-            </tr>
-          </thead>
-          <tbody id="menuTableBody"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
+      .struk-container {
+        font-family: "Courier New", monospace;
+        width: 80mm;
+        padding: 10px;
+        background: white;
+      }
 
-  <!-- Modal Add/Edit Menu -->
-  <div class="modal" id="menuModal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2 id="modalTitle">Tambah Menu</h2>
-        <button class="close-btn" id="closeModal">&times;</button>
+      .struk-header {
+        text-align: center;
+        border-bottom: 2px dashed #000;
+        padding-bottom: 10px;
+        margin-bottom: 10px;
+      }
+
+      .struk-header h2 {
+        margin: 5px 0;
+        font-size: 18px;
+      }
+
+      .struk-body {
+        font-size: 12px;
+      }
+
+      .struk-item {
+        display: flex;
+        justify-content: space-between;
+        margin: 5px 0;
+      }
+
+      .struk-footer {
+        border-top: 2px dashed #000;
+        margin-top: 10px;
+        padding-top: 10px;
+        text-align: center;
+      }
+
+      .struk-total {
+        font-size: 14px;
+        font-weight: bold;
+        margin: 10px 0;
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          padding: 10px;
+        }
+
+        table {
+          font-size: 14px;
+        }
+
+        th,
+        td {
+          padding: 8px;
+        }
+
+        .actions {
+          flex-direction: column;
+        }
+
+        .menu-image {
+          width: 50px;
+          height: 50px;
+        }
+
+        .export-section {
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Login Box -->
+    <div class="login-box" id="loginBox">
+      <h2>Login Admin</h2>
+      <input id="email" type="email" placeholder="Email" />
+      <input id="password" type="password" placeholder="Password" />
+      <button id="loginBtn" style="width: 100%">Login</button>
+    </div>
+
+    <!-- Dashboard -->
+    <div class="container" id="dashboard" style="display: none">
+      <button class="logout-btn btn-secondary" id="logoutBtn">Logout</button>
+
+      <h2>Dashboard Admin</h2>
+
+      <div class="tabs">
+        <button class="tab active" data-tab="orders">Pesanan</button>
+        <button class="tab" data-tab="menu">Kelola Menu</button>
       </div>
-      
-      <form id="menuForm">
-        <!-- Photo Upload Only -->
-        <div class="form-group">
-          <label>Upload Foto</label>
-          <div class="warning">
-            ⚠️ Foto disimpan sebagai Base64. Max 500KB untuk performa optimal.
+
+      <!-- Tab Pesanan -->
+      <div class="tab-content active" id="ordersTab">
+        <div class="export-section">
+          <h3 style="margin: 0">Daftar Pesanan</h3>
+          <button id="exportExcelBtn" class="btn-success">
+            📊 Export ke Excel
+          </button>
+        </div>
+        <div id="ordersList"></div>
+      </div>
+
+      <!-- Tab Kelola Menu -->
+      <div class="tab-content" id="menuTab">
+        <button id="addMenuBtn" style="margin-bottom: 15px">
+          ➕ Tambah Menu Baru
+        </button>
+
+        <div class="menu-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Gambar</th>
+                <th>Nama</th>
+                <th>Harga</th>
+                <th>Kategori</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="menuTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Add/Edit Menu -->
+    <div class="modal" id="menuModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="modalTitle">Tambah Menu</h2>
+          <button class="close-btn" id="closeModal">&times;</button>
+        </div>
+
+        <form id="menuForm">
+          <!-- Photo Upload Only -->
+          <div class="form-group">
+            <label>Upload Foto</label>
+            <div class="warning">
+              ⚠️ Foto disimpan sebagai Base64. Max 500KB untuk performa optimal.
+            </div>
+            <div class="image-upload-area" id="uploadArea">
+              <input
+                type="file"
+                id="imageInput"
+                accept="image/*"
+                style="display: none"
+              />
+              <p>📷 Klik atau drag foto ke sini</p>
+              <small>Max 500KB • JPG, PNG</small>
+            </div>
+            <img id="imagePreview" class="preview-image" />
           </div>
-          <div class="image-upload-area" id="uploadArea">
-            <input type="file" id="imageInput" accept="image/*" style="display:none;">
-            <p>📷 Klik atau drag foto ke sini</p>
-            <small>Max 500KB • JPG, PNG</small>
+
+          <div class="form-group">
+            <label>Nama Menu</label>
+            <input
+              type="text"
+              id="menuName"
+              placeholder="Bakmi Goreng"
+              required
+            />
           </div>
-          <img id="imagePreview" class="preview-image">
-        </div>
-        
-        <div class="form-group">
-          <label>Nama Menu</label>
-          <input type="text" id="menuName" placeholder="Bakmi Goreng" required>
-        </div>
-        
-        <div class="form-group">
-          <label>Harga (Rp)</label>
-          <input type="number" id="menuPrice" placeholder="20000" required>
-        </div>
-        
-        <div class="form-group">
-          <label>Kategori</label>
-          <select id="menuCategory" required>
-            <option value="makanan">Makanan</option>
-            <option value="telor-bebek">Telor Bebek</option>
-            <option value="tambahan">Tambahan</option>
-            <option value="minuman">Minuman</option>
-          </select>
-        </div>
-        
-        <button type="submit" style="width: 100%;">Simpan</button>
-      </form>
+
+          <div class="form-group">
+            <label>Harga (Rp)</label>
+            <input type="number" id="menuPrice" placeholder="20000" required />
+          </div>
+
+          <div class="form-group">
+            <label>Kategori</label>
+            <select id="menuCategory" required>
+              <option value="makanan">Makanan</option>
+              <option value="telor-bebek">Telor Bebek</option>
+              <option value="tambahan">Tambahan</option>
+              <option value="minuman">Minuman</option>
+            </select>
+          </div>
+
+          <button type="submit" style="width: 100%">Simpan</button>
+        </form>
+      </div>
     </div>
-  </div>
 
-  <!-- Hidden Struk for Printing -->
-  <div id="strukPrint" style="display:none;"></div>
+    <!-- Hidden Struk for Printing -->
+    <div id="strukPrint" style="display: none"></div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <script type="module">
-    import { auth, db } from "./firebase.js";
-    import { signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
-    import { collection, onSnapshot, orderBy, query, deleteDoc, doc, addDoc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script type="module">
+      import { auth, db } from "./firebase.js";
+      import {
+        signInWithEmailAndPassword,
+        signOut,
+      } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
+      import {
+        collection,
+        onSnapshot,
+        orderBy,
+        query,
+        deleteDoc,
+        doc,
+        addDoc,
+        updateDoc,
+        getDoc,
+      } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
 
-    const loginBox = document.getElementById("loginBox");
-    const dashboard = document.getElementById("dashboard");
-    const loginBtn = document.getElementById("loginBtn");
-    const logoutBtn = document.getElementById("logoutBtn");
-    const ordersList = document.getElementById("ordersList");
-    const menuTableBody = document.getElementById("menuTableBody");
-    const menuModal = document.getElementById("menuModal");
-    const menuForm = document.getElementById("menuForm");
-    const addMenuBtn = document.getElementById("addMenuBtn");
-    const closeModal = document.getElementById("closeModal");
-    const modalTitle = document.getElementById("modalTitle");
-    const exportExcelBtn = document.getElementById("exportExcelBtn");
-    
-    const uploadArea = document.getElementById("uploadArea");
-    const imageInput = document.getElementById("imageInput");
-    const imagePreview = document.getElementById("imagePreview");
+      const loginBox = document.getElementById("loginBox");
+      const dashboard = document.getElementById("dashboard");
+      const loginBtn = document.getElementById("loginBtn");
+      const logoutBtn = document.getElementById("logoutBtn");
+      const ordersList = document.getElementById("ordersList");
+      const menuTableBody = document.getElementById("menuTableBody");
+      const menuModal = document.getElementById("menuModal");
+      const menuForm = document.getElementById("menuForm");
+      const addMenuBtn = document.getElementById("addMenuBtn");
+      const closeModal = document.getElementById("closeModal");
+      const modalTitle = document.getElementById("modalTitle");
+      const exportExcelBtn = document.getElementById("exportExcelBtn");
 
-    let editingMenuId = null;
-    let uploadedImageBase64 = null;
-    let allOrders = [];
+      const uploadArea = document.getElementById("uploadArea");
+      const imageInput = document.getElementById("imageInput");
+      const imagePreview = document.getElementById("imagePreview");
 
-    // Image upload handlers
-    uploadArea.addEventListener('click', () => imageInput.click());
-    
-    imageInput.addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (file) handleImageFile(file);
-    });
+      let editingMenuId = null;
+      let uploadedImageBase64 = null;
+      let allOrders = [];
+      let lastOrderCount = 0;
 
-    uploadArea.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      uploadArea.classList.add('dragover');
-    });
+      // === SOUND NOTIFICATION ===
+      function playNotificationSound() {
+        // Play beep sound first
+        const audioContext = new (window.AudioContext ||
+          window.webkitAudioContext)();
 
-    uploadArea.addEventListener('dragleave', () => {
-      uploadArea.classList.remove('dragover');
-    });
+        // Create a melodic notification sound
+        const notes = [523.25, 659.25, 783.99]; // C5, E5, G5 (pleasant chord)
 
-    uploadArea.addEventListener('drop', (e) => {
-      e.preventDefault();
-      uploadArea.classList.remove('dragover');
-      const file = e.dataTransfer.files[0];
-      if (file && file.type.startsWith('image/')) {
-        handleImageFile(file);
+        notes.forEach((frequency, index) => {
+          setTimeout(() => {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            oscillator.frequency.value = frequency;
+            oscillator.type = "sine";
+
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(
+              0.01,
+              audioContext.currentTime + 0.3
+            );
+
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.3);
+          }, index * 150);
+        });
+
+        // Then speak the notification
+        setTimeout(() => {
+          speakNotification("Ada orderan baru masuk!");
+        }, 500);
       }
-    });
 
-    function handleImageFile(file) {
-      if (file.size > 500 * 1024) {
-        alert('Ukuran file maksimal 500KB untuk performa optimal');
-        return;
+      // === TEXT TO SPEECH NOTIFICATION ===
+      function speakNotification(text) {
+        if ("speechSynthesis" in window) {
+          // Cancel any ongoing speech
+          window.speechSynthesis.cancel();
+
+          const utterance = new SpeechSynthesisUtterance(text);
+          utterance.lang = "id-ID"; // Indonesian language
+          utterance.rate = 1.1; // Slightly faster
+          utterance.pitch = 1.2; // Slightly higher pitch for attention
+          utterance.volume = 1.0; // Maximum volume
+
+          window.speechSynthesis.speak(utterance);
+        }
       }
-      
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        uploadedImageBase64 = e.target.result;
-        imagePreview.src = uploadedImageBase64;
-        imagePreview.style.display = 'block';
-        uploadArea.querySelector('p').textContent = '✓ Foto dipilih';
-      };
-      reader.readAsDataURL(file);
-    }
 
-    // === LOGIN ===
-    loginBtn.addEventListener("click", async () => {
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
-      try {
-        await signInWithEmailAndPassword(auth, email, password);
-        loginBox.style.display = "none";
-        dashboard.style.display = "block";
-        loadOrders();
-        loadMenu();
-      } catch (err) {
-        alert("Login gagal: " + err.message);
-      }
-    });
+      // Image upload handlers
+      uploadArea.addEventListener("click", () => imageInput.click());
 
-    // === LOGOUT ===
-    logoutBtn.addEventListener("click", async () => {
-      await signOut(auth);
-      dashboard.style.display = "none";
-      loginBox.style.display = "block";
-    });
-
-    // === TAB SWITCHING ===
-    document.querySelectorAll(".tab").forEach(tab => {
-      tab.addEventListener("click", () => {
-        document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-        document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
-        tab.classList.add("active");
-        document.getElementById(tab.dataset.tab + "Tab").classList.add("active");
+      imageInput.addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (file) handleImageFile(file);
       });
-    });
 
-    // === FORMAT TANGGAL ===
-    function formatDate(timestamp) {
-      if (!timestamp) return '-';
-      const date = timestamp.toDate();
-      return date.toLocaleString('id-ID', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
+      uploadArea.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        uploadArea.classList.add("dragover");
       });
-    }
 
-    // === CETAK STRUK ===
-    function printStruk(order, orderId) {
-      const strukContent = `
+      uploadArea.addEventListener("dragleave", () => {
+        uploadArea.classList.remove("dragover");
+      });
+
+      uploadArea.addEventListener("drop", (e) => {
+        e.preventDefault();
+        uploadArea.classList.remove("dragover");
+        const file = e.dataTransfer.files[0];
+        if (file && file.type.startsWith("image/")) {
+          handleImageFile(file);
+        }
+      });
+
+      function handleImageFile(file) {
+        if (file.size > 500 * 1024) {
+          alert("Ukuran file maksimal 500KB untuk performa optimal");
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          uploadedImageBase64 = e.target.result;
+          imagePreview.src = uploadedImageBase64;
+          imagePreview.style.display = "block";
+          uploadArea.querySelector("p").textContent = "✓ Foto dipilih";
+        };
+        reader.readAsDataURL(file);
+      }
+
+      // === LOGIN ===
+      loginBtn.addEventListener("click", async () => {
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+        try {
+          await signInWithEmailAndPassword(auth, email, password);
+          loginBox.style.display = "none";
+          dashboard.style.display = "block";
+
+          // Request notification permission
+          if (Notification.permission === "default") {
+            Notification.requestPermission();
+          }
+
+          loadOrders();
+          loadMenu();
+        } catch (err) {
+          alert("Login gagal: " + err.message);
+        }
+      });
+
+      // === LOGOUT ===
+      logoutBtn.addEventListener("click", async () => {
+        if (confirm("Yakin ingin logout?")) {
+          await signOut(auth);
+          dashboard.style.display = "none";
+          loginBox.style.display = "block";
+        }
+      });
+
+      // === TAB SWITCHING ===
+      document.querySelectorAll(".tab").forEach((tab) => {
+        tab.addEventListener("click", () => {
+          document
+            .querySelectorAll(".tab")
+            .forEach((t) => t.classList.remove("active"));
+          document
+            .querySelectorAll(".tab-content")
+            .forEach((c) => c.classList.remove("active"));
+          tab.classList.add("active");
+          document
+            .getElementById(tab.dataset.tab + "Tab")
+            .classList.add("active");
+        });
+      });
+
+      // === FORMAT TANGGAL ===
+      function formatDate(timestamp) {
+        if (!timestamp) return "-";
+        const date = timestamp.toDate();
+        return date.toLocaleString("id-ID", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      }
+
+      // === CETAK STRUK ===
+      function printStruk(order, orderId) {
+        const strukContent = `
         <div class="struk-container">
           <div class="struk-header">
             <h2>🍜 BAKMI JOGJA</h2>
             <p style="margin: 2px 0;">Mbah Karso Ngumpet</p>
-            <p style="margin: 2px 0; font-size: 10px;">${formatDate(order.createdAt)}</p>
+            <p style="margin: 2px 0; font-size: 10px;">${formatDate(
+              order.createdAt
+            )}</p>
           </div>
           
           <div class="struk-body">
             <p><strong>Meja: ${order.meja}</strong></p>
             <p style="border-bottom: 1px dashed #000; margin: 5px 0;"></p>
             
-            ${order.items.map(item => `
+            ${order.items
+              .map(
+                (item) => `
               <div class="struk-item">
                 <span>${item.qty}x ${item.name}</span>
                 <span>Rp ${item.price.toLocaleString()}</span>
@@ -640,13 +745,19 @@
               <div style="text-align: right; font-size: 11px; color: #666;">
                 Subtotal: Rp ${(item.qty * item.price).toLocaleString()}
               </div>
-            `).join('')}
+            `
+              )
+              .join("")}
             
-            ${order.catatan ? `
+            ${
+              order.catatan
+                ? `
               <p style="margin-top: 10px; font-size: 11px;">
                 <strong>Catatan:</strong><br>${order.catatan}
               </p>
-            ` : ''}
+            `
+                : ""
+            }
           </div>
           
           <div class="struk-footer">
@@ -661,136 +772,166 @@
           </div>
         </div>
       `;
-      
-      const strukPrint = document.getElementById('strukPrint');
-      strukPrint.innerHTML = strukContent;
-      strukPrint.style.display = 'block';
-      
-      window.print();
-      
-      setTimeout(() => {
-        strukPrint.style.display = 'none';
-      }, 100);
-    }
 
-    // === EXPORT TO EXCEL ===
-    exportExcelBtn.addEventListener('click', () => {
-      if (allOrders.length === 0) {
-        alert('Tidak ada data pesanan untuk di-export');
-        return;
+        const strukPrint = document.getElementById("strukPrint");
+        strukPrint.innerHTML = strukContent;
+        strukPrint.style.display = "block";
+
+        window.print();
+
+        setTimeout(() => {
+          strukPrint.style.display = "none";
+        }, 100);
       }
 
-      const excelData = [];
-      
-      allOrders.forEach(order => {
-        order.items.forEach((item, index) => {
-          excelData.push({
-            'Tanggal': formatDate(order.createdAt),
-            'No Meja': order.meja,
-            'Nama Menu': item.name,
-            'Jumlah': item.qty,
-            'Harga Satuan': item.price,
-            'Subtotal': item.qty * item.price,
-            'Total Pesanan': index === 0 ? order.total : '',
-            'Catatan': index === 0 ? (order.catatan || '-') : ''
+      // === EXPORT TO EXCEL ===
+      exportExcelBtn.addEventListener("click", () => {
+        if (allOrders.length === 0) {
+          alert("Tidak ada data pesanan untuk di-export");
+          return;
+        }
+
+        const excelData = [];
+
+        allOrders.forEach((order) => {
+          order.items.forEach((item, index) => {
+            excelData.push({
+              Tanggal: formatDate(order.createdAt),
+              "No Meja": order.meja,
+              "Nama Menu": item.name,
+              Jumlah: item.qty,
+              "Harga Satuan": item.price,
+              Subtotal: item.qty * item.price,
+              "Total Pesanan": index === 0 ? order.total : "",
+              Catatan: index === 0 ? order.catatan || "-" : "",
+            });
           });
         });
+
+        const ws = XLSX.utils.json_to_sheet(excelData);
+
+        // Set column widths
+        ws["!cols"] = [
+          { wch: 18 }, // Tanggal
+          { wch: 10 }, // No Meja
+          { wch: 25 }, // Nama Menu
+          { wch: 8 }, // Jumlah
+          { wch: 12 }, // Harga Satuan
+          { wch: 12 }, // Subtotal
+          { wch: 15 }, // Total Pesanan
+          { wch: 30 }, // Catatan
+        ];
+
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Laporan Pesanan");
+
+        const fileName = `Laporan_Bakmi_Jogja_${
+          new Date().toISOString().split("T")[0]
+        }.xlsx`;
+        XLSX.writeFile(wb, fileName);
+
+        alert("✅ Laporan berhasil di-export!");
       });
 
-      const ws = XLSX.utils.json_to_sheet(excelData);
-      
-      // Set column widths
-      ws['!cols'] = [
-        { wch: 18 }, // Tanggal
-        { wch: 10 }, // No Meja
-        { wch: 25 }, // Nama Menu
-        { wch: 8 },  // Jumlah
-        { wch: 12 }, // Harga Satuan
-        { wch: 12 }, // Subtotal
-        { wch: 15 }, // Total Pesanan
-        { wch: 30 }  // Catatan
-      ];
+      // === LOAD ORDERS ===
+      function loadOrders() {
+        const q = query(collection(db, "orders"), orderBy("createdAt", "desc"));
+        onSnapshot(q, (snapshot) => {
+          const currentOrderCount = snapshot.size;
 
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Laporan Pesanan");
-      
-      const fileName = `Laporan_Bakmi_Jogja_${new Date().toISOString().split('T')[0]}.xlsx`;
-      XLSX.writeFile(wb, fileName);
-      
-      alert('✅ Laporan berhasil di-export!');
-    });
+          // Play sound if new order detected (but not on first load)
+          if (lastOrderCount > 0 && currentOrderCount > lastOrderCount) {
+            playNotificationSound();
 
-    // === LOAD ORDERS ===
-    function loadOrders() {
-      const q = query(collection(db, "orders"), orderBy("createdAt", "desc"));
-      onSnapshot(q, (snapshot) => {
-        allOrders = [];
-        ordersList.innerHTML = "";
-        
-        snapshot.forEach((docSnap) => {
-          const o = docSnap.data();
-          const orderId = docSnap.id;
-          allOrders.push({ ...o, id: orderId });
-          
-          const catatanHTML = o.catatan ? `
+            // Show browser notification if permission granted
+            if (Notification.permission === "granted") {
+              new Notification("🍜 Pesanan Baru!", {
+                body: "Ada pesanan baru masuk",
+                icon: "🍜",
+                tag: "new-order",
+              });
+            }
+          }
+
+          lastOrderCount = currentOrderCount;
+
+          allOrders = [];
+          ordersList.innerHTML = "";
+
+          snapshot.forEach((docSnap) => {
+            const o = docSnap.data();
+            const orderId = docSnap.id;
+            allOrders.push({ ...o, id: orderId });
+
+            const catatanHTML = o.catatan
+              ? `
             <div class="catatan-box">
               <strong>📝 Catatan:</strong> ${o.catatan}
             </div>
-          ` : '';
-          
-          const div = document.createElement("div");
-          div.className = "order-card";
-          div.innerHTML = `
+          `
+              : "";
+
+            const div = document.createElement("div");
+            div.className = "order-card";
+            div.innerHTML = `
             <h3>Pesanan Meja ${o.meja || "-"}</h3>
-            <p style="font-size: 12px; color: #666; margin: 5px 0;">${formatDate(o.createdAt)}</p>
+            <p style="font-size: 12px; color: #666; margin: 5px 0;">${formatDate(
+              o.createdAt
+            )}</p>
             <hr>
-            ${o.items.map(i => `
-              <div class="order-item">${i.qty}x ${i.name} - Rp${i.price.toLocaleString()}</div>
-            `).join("")}
+            ${o.items
+              .map(
+                (i) => `
+              <div class="order-item">${i.qty}x ${
+                  i.name
+                } - Rp${i.price.toLocaleString()}</div>
+            `
+              )
+              .join("")}
             ${catatanHTML}
             <hr>
             <b>Total: Rp${o.total.toLocaleString()}</b>
             <div class="actions" style="margin-top: 10px;">
-              <button class="btn-info btn-small" onclick="printStruk('${orderId}')">🖨️ Cetak Struk</button>
+              <button class="btn-info btn-small" onclick="printStrukGlobal('${orderId}')">🖨️ Cetak Struk</button>
               <button class="btn-danger btn-small" onclick="deleteOrder('${orderId}')">🗑 Hapus</button>
             </div>
           `;
-          ordersList.appendChild(div);
+            ordersList.appendChild(div);
+          });
         });
-      });
-    }
-
-    // === PRINT STRUK FUNCTION ===
-    window.printStruk = (orderId) => {
-      const order = allOrders.find(o => o.id === orderId);
-      if (order) {
-        printStruk(order, orderId);
       }
-    };
 
-    // === DELETE ORDER ===
-    window.deleteOrder = async (id) => {
-      if (confirm("Yakin hapus pesanan ini?")) {
-        await deleteDoc(doc(db, "orders", id));
-        alert("Pesanan dihapus ✅");
-      }
-    };
+      // === PRINT STRUK FUNCTION ===
+      window.printStrukGlobal = (orderId) => {
+        const order = allOrders.find((o) => o.id === orderId);
+        if (order) {
+          printStruk(order, orderId);
+        }
+      };
 
-    // === LOAD MENU ===
-    function loadMenu() {
-      const q = query(collection(db, "menu"), orderBy("name", "asc"));
-      onSnapshot(q, (snapshot) => {
-        menuTableBody.innerHTML = "";
-        snapshot.forEach((docSnap) => {
-          const m = docSnap.data();
-          const menuId = docSnap.id;
-          
-          const imageHTML = m.imageBase64 
-            ? `<img src="${m.imageBase64}" class="menu-image" alt="${m.name}">`
-            : `<div style="width:60px;height:60px;background:#f0f0f0;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#999;">No Image</div>`;
-          
-          const tr = document.createElement("tr");
-          tr.innerHTML = `
+      // === DELETE ORDER ===
+      window.deleteOrder = async (id) => {
+        if (confirm("Yakin hapus pesanan ini?")) {
+          await deleteDoc(doc(db, "orders", id));
+          alert("Pesanan dihapus ✅");
+        }
+      };
+
+      // === LOAD MENU ===
+      function loadMenu() {
+        const q = query(collection(db, "menu"), orderBy("name", "asc"));
+        onSnapshot(q, (snapshot) => {
+          menuTableBody.innerHTML = "";
+          snapshot.forEach((docSnap) => {
+            const m = docSnap.data();
+            const menuId = docSnap.id;
+
+            const imageHTML = m.imageBase64
+              ? `<img src="${m.imageBase64}" class="menu-image" alt="${m.name}">`
+              : `<div style="width:60px;height:60px;background:#f0f0f0;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#999;">No Image</div>`;
+
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
             <td>${imageHTML}</td>
             <td>${m.name}</td>
             <td>Rp ${m.price.toLocaleString()}</td>
@@ -800,89 +941,89 @@
               <button class="btn-small btn-danger" onclick="deleteMenu('${menuId}')">🗑️ Hapus</button>
             </td>
           `;
-          menuTableBody.appendChild(tr);
+            menuTableBody.appendChild(tr);
+          });
         });
-      });
-    }
+      }
 
-    // === ADD MENU ===
-    addMenuBtn.addEventListener("click", () => {
-      editingMenuId = null;
-      modalTitle.textContent = "Tambah Menu Baru";
-      menuForm.reset();
-      imagePreview.style.display = 'none';
-      uploadedImageBase64 = null;
-      uploadArea.querySelector('p').textContent = '📷 Klik atau drag foto ke sini';
-      menuModal.classList.add("show");
-    });
-
-    // === EDIT MENU ===
-    window.editMenu = async (id) => {
-      const docRef = doc(db, "menu", id);
-      const docSnap = await getDoc(docRef);
-      
-      if (docSnap.exists()) {
-        const m = docSnap.data();
-        editingMenuId = id;
-        modalTitle.textContent = "Edit Menu";
-        document.getElementById("menuName").value = m.name;
-        document.getElementById("menuPrice").value = m.price;
-        document.getElementById("menuCategory").value = m.cat;
-        
-        if (m.imageBase64) {
-          uploadedImageBase64 = m.imageBase64;
-          imagePreview.src = m.imageBase64;
-          imagePreview.style.display = 'block';
-          uploadArea.querySelector('p').textContent = '✓ Foto saat ini';
-        }
-        
+      // === ADD MENU ===
+      addMenuBtn.addEventListener("click", () => {
+        editingMenuId = null;
+        modalTitle.textContent = "Tambah Menu Baru";
+        menuForm.reset();
+        imagePreview.style.display = "none";
+        uploadedImageBase64 = null;
+        uploadArea.querySelector("p").textContent =
+          "📷 Klik atau drag foto ke sini";
         menuModal.classList.add("show");
-      }
-    };
+      });
 
-    // === DELETE MENU ===
-    window.deleteMenu = async (id) => {
-      if (confirm("Yakin hapus menu ini?")) {
-        await deleteDoc(doc(db, "menu", id));
-        alert("Menu dihapus ✅");
-      }
-    };
+      // === EDIT MENU ===
+      window.editMenu = async (id) => {
+        const docRef = doc(db, "menu", id);
+        const docSnap = await getDoc(docRef);
 
-    // === SAVE MENU ===
-    menuForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      
-      const menuData = {
-        name: document.getElementById("menuName").value,
-        price: parseInt(document.getElementById("menuPrice").value),
-        cat: document.getElementById("menuCategory").value,
-        imageBase64: uploadedImageBase64 || null
+        if (docSnap.exists()) {
+          const m = docSnap.data();
+          editingMenuId = id;
+          modalTitle.textContent = "Edit Menu";
+          document.getElementById("menuName").value = m.name;
+          document.getElementById("menuPrice").value = m.price;
+          document.getElementById("menuCategory").value = m.cat;
+
+          if (m.imageBase64) {
+            uploadedImageBase64 = m.imageBase64;
+            imagePreview.src = m.imageBase64;
+            imagePreview.style.display = "block";
+            uploadArea.querySelector("p").textContent = "✓ Foto saat ini";
+          }
+
+          menuModal.classList.add("show");
+        }
       };
 
-      if (editingMenuId) {
-        await updateDoc(doc(db, "menu", editingMenuId), menuData);
-        alert("Menu diupdate ✅");
-      } else {
-        await addDoc(collection(db, "menu"), menuData);
-        alert("Menu ditambahkan ✅");
-      }
+      // === DELETE MENU ===
+      window.deleteMenu = async (id) => {
+        if (confirm("Yakin hapus menu ini?")) {
+          await deleteDoc(doc(db, "menu", id));
+          alert("Menu dihapus ✅");
+        }
+      };
 
-      menuModal.classList.remove("show");
-      menuForm.reset();
-      uploadedImageBase64 = null;
-    });
+      // === SAVE MENU ===
+      menuForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
 
-    // === CLOSE MODAL ===
-    closeModal.addEventListener("click", () => {
-      menuModal.classList.remove("show");
-    });
+        const menuData = {
+          name: document.getElementById("menuName").value,
+          price: parseInt(document.getElementById("menuPrice").value),
+          cat: document.getElementById("menuCategory").value,
+          imageBase64: uploadedImageBase64 || null,
+        };
 
-    menuModal.addEventListener("click", (e) => {
-      if (e.target === menuModal) {
+        if (editingMenuId) {
+          await updateDoc(doc(db, "menu", editingMenuId), menuData);
+          alert("Menu diupdate ✅");
+        } else {
+          await addDoc(collection(db, "menu"), menuData);
+          alert("Menu ditambahkan ✅");
+        }
+
         menuModal.classList.remove("show");
-      }
-    });
-  </script>
+        menuForm.reset();
+        uploadedImageBase64 = null;
+      });
 
-</body>
+      // === CLOSE MODAL ===
+      closeModal.addEventListener("click", () => {
+        menuModal.classList.remove("show");
+      });
+
+      menuModal.addEventListener("click", (e) => {
+        if (e.target === menuModal) {
+          menuModal.classList.remove("show");
+        }
+      });
+    </script>
+  </body>
 </html>
