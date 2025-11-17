@@ -4,324 +4,111 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>📊 Dashboard Admin - Kelola Menu</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
     <style>
-      * {
-        box-sizing: border-box;
-      }
-
       body {
         font-family: "Poppins", sans-serif;
-        background: #f7f7f7;
-        margin: 0;
-        padding: 0;
-        color: #333;
       }
 
-      .container {
-        max-width: 1200px;
-        margin: 20px auto;
-        padding: 20px;
+      /* Animations */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
 
-      .login-box {
-        max-width: 400px;
-        margin: 60px auto;
-        background: #fff;
-        padding: 25px;
-        border-radius: 10px;
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateX(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
       }
 
-      h2 {
-        text-align: center;
-        color: #800020;
-        margin-bottom: 20px;
+      @keyframes scaleIn {
+        from {
+          opacity: 0;
+          transform: scale(0.9);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
       }
 
-      .tabs {
-        display: flex;
-        gap: 10px;
-        margin-bottom: 20px;
-        border-bottom: 2px solid #e0e0e0;
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+        }
       }
 
-      .tab {
-        padding: 10px 20px;
-        background: none;
-        border: none;
-        cursor: pointer;
-        font-weight: 500;
-        color: #666;
-        border-bottom: 3px solid transparent;
-        transition: 0.3s;
+      @keyframes shake {
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+        25% {
+          transform: translateX(-5px);
+        }
+        75% {
+          transform: translateX(5px);
+        }
       }
 
-      .tab.active {
-        color: #800020;
-        border-bottom-color: #800020;
+      .animate-fadeIn {
+        animation: fadeIn 0.5s ease-out;
       }
 
-      .tab-content {
-        display: none;
+      .animate-slideIn {
+        animation: slideIn 0.4s ease-out;
       }
 
-      .tab-content.active {
-        display: block;
+      .animate-scaleIn {
+        animation: scaleIn 0.3s ease-out;
       }
 
-      input,
-      select,
-      textarea {
-        width: 100%;
-        margin: 10px 0;
-        padding: 12px;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        font-size: 15px;
-        font-family: inherit;
+      .animate-pulse-once {
+        animation: pulse 0.6s ease-in-out;
       }
 
-      textarea {
-        resize: vertical;
-        min-height: 60px;
+      .animate-shake {
+        animation: shake 0.5s ease-in-out;
       }
 
-      button {
-        background: #800020;
-        color: #fff;
-        padding: 10px 15px;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        font-weight: bold;
-        transition: 0.3s;
+      /* Smooth transitions */
+      .smooth-transition {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       }
 
-      button:hover {
-        background: #600018;
+      /* Hover lift effect */
+      .hover-lift:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
       }
 
-      .btn-secondary {
-        background: #666;
+      /* Modal backdrop animation */
+      .modal-backdrop {
+        animation: fadeIn 0.3s ease-out;
       }
 
-      .btn-secondary:hover {
-        background: #444;
-      }
-
-      .btn-danger {
-        background: #ff2e2e;
-      }
-
-      .btn-danger:hover {
-        background: #d62222;
-      }
-
-      .btn-success {
-        background: #28a745;
-      }
-
-      .btn-success:hover {
-        background: #218838;
-      }
-
-      .btn-info {
-        background: #17a2b8;
-      }
-
-      .btn-info:hover {
-        background: #138496;
-      }
-
-      .menu-table {
-        width: 100%;
-        background: white;
-        border-radius: 10px;
-        overflow: hidden;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-      }
-
-      table {
-        width: 100%;
-        border-collapse: collapse;
-      }
-
-      th,
-      td {
-        padding: 12px;
-        text-align: left;
-        border-bottom: 1px solid #eee;
-      }
-
-      th {
-        background: #800020;
-        color: white;
-        font-weight: 600;
-      }
-
-      tr:hover {
-        background: #f9f9f9;
-      }
-
-      .menu-image {
-        width: 60px;
-        height: 60px;
-        object-fit: cover;
-        border-radius: 8px;
-        border: 2px solid #e0e0e0;
-      }
-
-      .actions {
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-      }
-
-      .btn-small {
-        padding: 6px 12px;
-        font-size: 13px;
-      }
-
-      .modal {
-        display: none;
-        position: fixed;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.6);
-        justify-content: center;
-        align-items: center;
-        z-index: 1000;
-        padding: 20px;
-      }
-
-      .modal.show {
-        display: flex;
-      }
-
-      .modal-content {
-        background: white;
-        padding: 25px;
-        border-radius: 12px;
-        width: 100%;
-        max-width: 500px;
-        max-height: 90vh;
-        overflow-y: auto;
-      }
-
-      .modal-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
-      }
-
-      .close-btn {
-        background: none;
-        color: #800020;
-        font-size: 24px;
-        padding: 0;
-        width: 30px;
-        height: 30px;
-      }
-
-      .form-group {
-        margin-bottom: 15px;
-      }
-
-      .form-group label {
-        display: block;
-        margin-bottom: 5px;
-        font-weight: 500;
-        color: #333;
-      }
-
-      .image-upload-area {
-        border: 2px dashed #ddd;
-        border-radius: 8px;
-        padding: 20px;
-        text-align: center;
-        cursor: pointer;
-        transition: 0.3s;
-      }
-
-      .image-upload-area:hover {
-        border-color: #800020;
-        background: #f9f9f9;
-      }
-
-      .image-upload-area.dragover {
-        border-color: #800020;
-        background: #fff5f5;
-      }
-
-      .preview-image {
-        max-width: 100%;
-        max-height: 200px;
-        margin-top: 10px;
-        border-radius: 8px;
-      }
-
-      .order-card {
-        background: white;
-        border-radius: 10px;
-        padding: 15px;
-        margin: 15px 0;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-      }
-
-      .order-card h3 {
-        color: #800020;
-        margin: 0 0 10px 0;
-      }
-
-      .order-item {
-        font-family: monospace;
-        margin: 4px 0;
-      }
-
-      .catatan-box {
-        background: #fff9e6;
-        border-left: 3px solid #ffb84d;
-        padding: 10px;
-        margin: 10px 0;
-        border-radius: 5px;
-        font-style: italic;
-        color: #666;
-      }
-
-      .logout-btn {
-        position: absolute;
-        top: 20px;
-        right: 20px;
-      }
-
-      #imagePreview {
-        display: none;
-      }
-
-      .warning {
-        background: #fff3cd;
-        border: 1px solid #ffc107;
-        color: #856404;
-        padding: 10px;
-        border-radius: 6px;
-        margin-bottom: 15px;
-        font-size: 13px;
-      }
-
-      .export-section {
-        background: white;
-        padding: 15px;
-        border-radius: 10px;
-        margin-bottom: 20px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 10px;
-      }
-
-      /* Print Styles */
       @media print {
         body * {
           visibility: hidden;
@@ -337,103 +124,80 @@
           width: 80mm;
         }
       }
-
-      .struk-container {
-        font-family: "Courier New", monospace;
-        width: 80mm;
-        padding: 10px;
-        background: white;
-      }
-
-      .struk-header {
-        text-align: center;
-        border-bottom: 2px dashed #000;
-        padding-bottom: 10px;
-        margin-bottom: 10px;
-      }
-
-      .struk-header h2 {
-        margin: 5px 0;
-        font-size: 18px;
-      }
-
-      .struk-body {
-        font-size: 12px;
-      }
-
-      .struk-item {
-        display: flex;
-        justify-content: space-between;
-        margin: 5px 0;
-      }
-
-      .struk-footer {
-        border-top: 2px dashed #000;
-        margin-top: 10px;
-        padding-top: 10px;
-        text-align: center;
-      }
-
-      .struk-total {
-        font-size: 14px;
-        font-weight: bold;
-        margin: 10px 0;
-      }
-
-      @media (max-width: 768px) {
-        .container {
-          padding: 10px;
-        }
-
-        table {
-          font-size: 14px;
-        }
-
-        th,
-        td {
-          padding: 8px;
-        }
-
-        .actions {
-          flex-direction: column;
-        }
-
-        .menu-image {
-          width: 50px;
-          height: 50px;
-        }
-
-        .export-section {
-          flex-direction: column;
-        }
-      }
     </style>
   </head>
-  <body>
+  <body class="bg-gray-100 text-gray-800">
     <!-- Login Box -->
-    <div class="login-box" id="loginBox">
-      <h2>Login Admin</h2>
-      <input id="email" type="email" placeholder="Email" />
-      <input id="password" type="password" placeholder="Password" />
-      <button id="loginBtn" style="width: 100%">Login</button>
+    <div
+      id="loginBox"
+      class="max-w-md mx-auto my-16 bg-white p-6 rounded-xl shadow-lg animate-scaleIn"
+    >
+      <h2
+        class="text-2xl font-bold text-center text-red-900 mb-5 animate-fadeIn"
+      >
+        Login Admin
+      </h2>
+      <input
+        id="email"
+        type="email"
+        placeholder="Email"
+        class="w-full my-2 px-3 py-3 border border-gray-300 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-red-900 smooth-transition focus:scale-105"
+      />
+      <input
+        id="password"
+        type="password"
+        placeholder="Password"
+        class="w-full my-2 px-3 py-3 border border-gray-300 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-red-900 smooth-transition focus:scale-105"
+      />
+      <button
+        id="loginBtn"
+        class="w-full bg-red-900 text-white py-3 rounded-lg font-bold hover:bg-red-800 smooth-transition transform hover:scale-105 active:scale-95"
+      >
+        Login
+      </button>
     </div>
 
     <!-- Dashboard -->
-    <div class="container" id="dashboard" style="display: none">
-      <button class="logout-btn btn-secondary" id="logoutBtn">Logout</button>
+    <div id="dashboard" class="hidden max-w-7xl mx-auto my-5 px-5">
+      <button
+        id="logoutBtn"
+        class="absolute top-5 right-5 bg-gray-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-gray-700 smooth-transition transform hover:scale-105 active:scale-95"
+      >
+        Logout
+      </button>
 
-      <h2>Dashboard Admin</h2>
+      <h2
+        class="text-3xl font-bold text-center text-red-900 mb-5 animate-fadeIn"
+      >
+        Dashboard Admin
+      </h2>
 
-      <div class="tabs">
-        <button class="tab active" data-tab="orders">Pesanan</button>
-        <button class="tab" data-tab="menu">Kelola Menu</button>
+      <!-- Tabs -->
+      <div class="flex gap-3 mb-5 border-b-2 border-gray-300 animate-slideIn">
+        <button
+          class="tab px-5 py-3 font-medium text-gray-600 border-b-3 border-transparent hover:text-red-900 smooth-transition transform hover:translate-y-[-2px] active"
+          data-tab="orders"
+        >
+          Pesanan
+        </button>
+        <button
+          class="tab px-5 py-3 font-medium text-gray-600 border-b-3 border-transparent hover:text-red-900 smooth-transition transform hover:translate-y-[-2px]"
+          data-tab="menu"
+        >
+          Kelola Menu
+        </button>
       </div>
 
       <!-- Tab Pesanan -->
-      <div class="tab-content active" id="ordersTab">
-        <div class="export-section">
-          <h3 style="margin: 0">Daftar Pesanan</h3>
-          <button id="exportExcelBtn" class="btn-success">
+      <div id="ordersTab" class="tab-content animate-fadeIn">
+        <div
+          class="bg-white p-4 rounded-xl mb-5 shadow flex justify-between items-center flex-wrap gap-3 hover-lift smooth-transition"
+        >
+          <h3 class="text-xl font-semibold m-0">Daftar Pesanan</h3>
+          <button
+            id="exportExcelBtn"
+            class="bg-green-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-green-700 smooth-transition transform hover:scale-105 active:scale-95"
+          >
             📊 Export ke Excel
           </button>
         </div>
@@ -441,20 +205,25 @@
       </div>
 
       <!-- Tab Kelola Menu -->
-      <div class="tab-content" id="menuTab">
-        <button id="addMenuBtn" style="margin-bottom: 15px">
+      <div id="menuTab" class="tab-content hidden">
+        <button
+          id="addMenuBtn"
+          class="bg-red-900 text-white px-4 py-2 rounded-lg font-bold hover:bg-red-800 smooth-transition transform hover:scale-105 active:scale-95 mb-4"
+        >
           ➕ Tambah Menu Baru
         </button>
 
-        <div class="menu-table">
-          <table>
+        <div
+          class="bg-white rounded-xl overflow-hidden shadow hover-lift smooth-transition"
+        >
+          <table class="w-full border-collapse">
             <thead>
-              <tr>
-                <th>Gambar</th>
-                <th>Nama</th>
-                <th>Harga</th>
-                <th>Kategori</th>
-                <th>Aksi</th>
+              <tr class="bg-red-900 text-white">
+                <th class="p-3 text-left font-semibold">Gambar</th>
+                <th class="p-3 text-left font-semibold">Nama</th>
+                <th class="p-3 text-left font-semibold">Harga</th>
+                <th class="p-3 text-left font-semibold">Kategori</th>
+                <th class="p-3 text-left font-semibold">Aksi</th>
               </tr>
             </thead>
             <tbody id="menuTableBody"></tbody>
@@ -464,51 +233,82 @@
     </div>
 
     <!-- Modal Add/Edit Menu -->
-    <div class="modal" id="menuModal">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2 id="modalTitle">Tambah Menu</h2>
-          <button class="close-btn" id="closeModal">&times;</button>
+    <div
+      id="menuModal"
+      class="hidden fixed inset-0 bg-black bg-opacity-60 justify-center items-center z-50 p-5 modal-backdrop"
+    >
+      <div
+        class="bg-white p-6 rounded-xl w-full max-w-lg max-h-screen overflow-y-auto animate-scaleIn"
+      >
+        <div class="flex justify-between items-center mb-5">
+          <h2 id="modalTitle" class="text-2xl font-bold text-red-900">
+            Tambah Menu
+          </h2>
+          <button
+            id="closeModal"
+            class="text-red-900 text-3xl w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded smooth-transition transform hover:rotate-90"
+          >
+            &times;
+          </button>
         </div>
 
         <form id="menuForm">
-          <!-- Photo Upload Only -->
-          <div class="form-group">
-            <label>Upload Foto</label>
-            <div class="warning">
+          <!-- Photo Upload -->
+          <div class="mb-4 animate-slideIn">
+            <label class="block mb-2 font-medium">Upload Foto</label>
+            <div
+              class="bg-yellow-50 border border-yellow-400 text-yellow-800 p-2 rounded-lg mb-3 text-sm"
+            >
               ⚠️ Foto disimpan sebagai Base64. Max 500KB untuk performa optimal.
             </div>
-            <div class="image-upload-area" id="uploadArea">
+            <div
+              id="uploadArea"
+              class="border-2 border-dashed border-gray-300 rounded-lg p-5 text-center cursor-pointer hover:border-red-900 hover:bg-gray-50 smooth-transition transform hover:scale-[1.02]"
+            >
               <input
                 type="file"
                 id="imageInput"
                 accept="image/*"
-                style="display: none"
+                class="hidden"
               />
-              <p>📷 Klik atau drag foto ke sini</p>
-              <small>Max 500KB • JPG, PNG</small>
+              <p class="text-gray-600">📷 Klik atau drag foto ke sini</p>
+              <small class="text-gray-500">Max 500KB • JPG, PNG</small>
             </div>
-            <img id="imagePreview" class="preview-image" />
+            <img
+              id="imagePreview"
+              class="hidden max-w-full max-h-52 mt-3 rounded-lg animate-fadeIn"
+            />
           </div>
 
-          <div class="form-group">
-            <label>Nama Menu</label>
+          <div class="mb-4 animate-slideIn" style="animation-delay: 0.1s">
+            <label class="block mb-2 font-medium">Nama Menu</label>
             <input
               type="text"
               id="menuName"
               placeholder="Bakmi Goreng"
               required
+              class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-900 smooth-transition focus:scale-105"
             />
           </div>
 
-          <div class="form-group">
-            <label>Harga (Rp)</label>
-            <input type="number" id="menuPrice" placeholder="20000" required />
+          <div class="mb-4 animate-slideIn" style="animation-delay: 0.2s">
+            <label class="block mb-2 font-medium">Harga (Rp)</label>
+            <input
+              type="number"
+              id="menuPrice"
+              placeholder="20000"
+              required
+              class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-900 smooth-transition focus:scale-105"
+            />
           </div>
 
-          <div class="form-group">
-            <label>Kategori</label>
-            <select id="menuCategory" required>
+          <div class="mb-4 animate-slideIn" style="animation-delay: 0.3s">
+            <label class="block mb-2 font-medium">Kategori</label>
+            <select
+              id="menuCategory"
+              required
+              class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-900 smooth-transition focus:scale-105"
+            >
               <option value="makanan">Makanan</option>
               <option value="telor-bebek">Telor Bebek</option>
               <option value="tambahan">Tambahan</option>
@@ -516,13 +316,19 @@
             </select>
           </div>
 
-          <button type="submit" style="width: 100%">Simpan</button>
+          <button
+            type="submit"
+            class="w-full bg-red-900 text-white py-3 rounded-lg font-bold hover:bg-red-800 smooth-transition transform hover:scale-105 active:scale-95 animate-slideIn"
+            style="animation-delay: 0.4s"
+          >
+            Simpan
+          </button>
         </form>
       </div>
     </div>
 
     <!-- Hidden Struk for Printing -->
-    <div id="strukPrint" style="display: none"></div>
+    <div id="strukPrint" class="hidden"></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script type="module">
@@ -567,12 +373,9 @@
 
       // === SOUND NOTIFICATION ===
       function playNotificationSound() {
-        // Play beep sound first
         const audioContext = new (window.AudioContext ||
           window.webkitAudioContext)();
-
-        // Create a melodic notification sound
-        const notes = [523.25, 659.25, 783.99]; // C5, E5, G5 (pleasant chord)
+        const notes = [523.25, 659.25, 783.99];
 
         notes.forEach((frequency, index) => {
           setTimeout(() => {
@@ -596,24 +399,19 @@
           }, index * 150);
         });
 
-        // Then speak the notification
         setTimeout(() => {
           speakNotification("Ada orderan baru masuk!");
         }, 500);
       }
 
-      // === TEXT TO SPEECH NOTIFICATION ===
       function speakNotification(text) {
         if ("speechSynthesis" in window) {
-          // Cancel any ongoing speech
           window.speechSynthesis.cancel();
-
           const utterance = new SpeechSynthesisUtterance(text);
-          utterance.lang = "id-ID"; // Indonesian language
-          utterance.rate = 1.1; // Slightly faster
-          utterance.pitch = 1.2; // Slightly higher pitch for attention
-          utterance.volume = 1.0; // Maximum volume
-
+          utterance.lang = "id-ID";
+          utterance.rate = 1.1;
+          utterance.pitch = 1.2;
+          utterance.volume = 1.0;
           window.speechSynthesis.speak(utterance);
         }
       }
@@ -628,16 +426,16 @@
 
       uploadArea.addEventListener("dragover", (e) => {
         e.preventDefault();
-        uploadArea.classList.add("dragover");
+        uploadArea.classList.add("border-red-900", "bg-red-50");
       });
 
       uploadArea.addEventListener("dragleave", () => {
-        uploadArea.classList.remove("dragover");
+        uploadArea.classList.remove("border-red-900", "bg-red-50");
       });
 
       uploadArea.addEventListener("drop", (e) => {
         e.preventDefault();
-        uploadArea.classList.remove("dragover");
+        uploadArea.classList.remove("border-red-900", "bg-red-50");
         const file = e.dataTransfer.files[0];
         if (file && file.type.startsWith("image/")) {
           handleImageFile(file);
@@ -654,7 +452,7 @@
         reader.onload = (e) => {
           uploadedImageBase64 = e.target.result;
           imagePreview.src = uploadedImageBase64;
-          imagePreview.style.display = "block";
+          imagePreview.classList.remove("hidden");
           uploadArea.querySelector("p").textContent = "✓ Foto dipilih";
         };
         reader.readAsDataURL(file);
@@ -666,10 +464,9 @@
         const password = document.getElementById("password").value;
         try {
           await signInWithEmailAndPassword(auth, email, password);
-          loginBox.style.display = "none";
-          dashboard.style.display = "block";
+          loginBox.classList.add("hidden");
+          dashboard.classList.remove("hidden");
 
-          // Request notification permission
           if (Notification.permission === "default") {
             Notification.requestPermission();
           }
@@ -685,26 +482,37 @@
       logoutBtn.addEventListener("click", async () => {
         if (confirm("Yakin ingin logout?")) {
           await signOut(auth);
-          dashboard.style.display = "none";
-          loginBox.style.display = "block";
+          dashboard.classList.add("hidden");
+          loginBox.classList.remove("hidden");
         }
       });
 
       // === TAB SWITCHING ===
       document.querySelectorAll(".tab").forEach((tab) => {
         tab.addEventListener("click", () => {
-          document
-            .querySelectorAll(".tab")
-            .forEach((t) => t.classList.remove("active"));
-          document
-            .querySelectorAll(".tab-content")
-            .forEach((c) => c.classList.remove("active"));
-          tab.classList.add("active");
+          document.querySelectorAll(".tab").forEach((t) => {
+            t.classList.remove("active", "text-red-900", "border-red-900");
+            t.classList.add("text-gray-600");
+            t.style.borderBottomWidth = "0";
+          });
+
+          document.querySelectorAll(".tab-content").forEach((c) => {
+            c.classList.add("hidden");
+          });
+
+          tab.classList.add("active", "text-red-900");
+          tab.classList.remove("text-gray-600");
+          tab.style.borderBottom = "3px solid #800020";
+
           document
             .getElementById(tab.dataset.tab + "Tab")
-            .classList.add("active");
+            .classList.remove("hidden");
         });
       });
+
+      // Set initial active tab styling
+      document.querySelector(".tab.active").style.borderBottom =
+        "3px solid #800020";
 
       // === FORMAT TANGGAL ===
       function formatDate(timestamp) {
@@ -722,23 +530,23 @@
       // === CETAK STRUK ===
       function printStruk(order, orderId) {
         const strukContent = `
-        <div class="struk-container">
-          <div class="struk-header">
-            <h2>🍜 BAKMI JOGJA</h2>
+        <div style="font-family: 'Courier New', monospace; width: 80mm; padding: 10px; background: white;">
+          <div style="text-align: center; border-bottom: 2px dashed #000; padding-bottom: 10px; margin-bottom: 10px;">
+            <h2 style="margin: 5px 0; font-size: 18px;">🍜 BAKMI JOGJA</h2>
             <p style="margin: 2px 0;">Mbah Karso Ngumpet</p>
             <p style="margin: 2px 0; font-size: 10px;">${formatDate(
               order.createdAt
             )}</p>
           </div>
           
-          <div class="struk-body">
+          <div style="font-size: 12px;">
             <p><strong>Meja: ${order.meja}</strong></p>
             <p style="border-bottom: 1px dashed #000; margin: 5px 0;"></p>
             
             ${order.items
               .map(
                 (item) => `
-              <div class="struk-item">
+              <div style="display: flex; justify-content: space-between; margin: 5px 0;">
                 <span>${item.qty}x ${item.name}</span>
                 <span>Rp ${item.price.toLocaleString()}</span>
               </div>
@@ -760,8 +568,8 @@
             }
           </div>
           
-          <div class="struk-footer">
-            <div class="struk-total">
+          <div style="border-top: 2px dashed #000; margin-top: 10px; padding-top: 10px; text-align: center;">
+            <div style="font-size: 14px; font-weight: bold; margin: 10px 0;">
               <div style="display: flex; justify-content: space-between;">
                 <span>TOTAL:</span>
                 <span>Rp ${order.total.toLocaleString()}</span>
@@ -775,12 +583,12 @@
 
         const strukPrint = document.getElementById("strukPrint");
         strukPrint.innerHTML = strukContent;
-        strukPrint.style.display = "block";
+        strukPrint.classList.remove("hidden");
 
         window.print();
 
         setTimeout(() => {
-          strukPrint.style.display = "none";
+          strukPrint.classList.add("hidden");
         }, 100);
       }
 
@@ -809,17 +617,15 @@
         });
 
         const ws = XLSX.utils.json_to_sheet(excelData);
-
-        // Set column widths
         ws["!cols"] = [
-          { wch: 18 }, // Tanggal
-          { wch: 10 }, // No Meja
-          { wch: 25 }, // Nama Menu
-          { wch: 8 }, // Jumlah
-          { wch: 12 }, // Harga Satuan
-          { wch: 12 }, // Subtotal
-          { wch: 15 }, // Total Pesanan
-          { wch: 30 }, // Catatan
+          { wch: 18 },
+          { wch: 10 },
+          { wch: 25 },
+          { wch: 8 },
+          { wch: 12 },
+          { wch: 12 },
+          { wch: 15 },
+          { wch: 30 },
         ];
 
         const wb = XLSX.utils.book_new();
@@ -839,11 +645,9 @@
         onSnapshot(q, (snapshot) => {
           const currentOrderCount = snapshot.size;
 
-          // Play sound if new order detected (but not on first load)
           if (lastOrderCount > 0 && currentOrderCount > lastOrderCount) {
             playNotificationSound();
 
-            // Show browser notification if permission granted
             if (Notification.permission === "granted") {
               new Notification("🍜 Pesanan Baru!", {
                 body: "Ada pesanan baru masuk",
@@ -865,51 +669,50 @@
 
             const catatanHTML = o.catatan
               ? `
-            <div class="catatan-box">
-              <strong>📝 Catatan:</strong> ${o.catatan}
-            </div>
-          `
+              <div class="bg-yellow-50 border-l-4 border-yellow-400 p-3 my-3 rounded italic text-gray-600">
+                <strong>📝 Catatan:</strong> ${o.catatan}
+              </div>
+            `
               : "";
 
             const div = document.createElement("div");
-            div.className = "order-card";
+            div.className =
+              "bg-white rounded-xl p-4 my-4 shadow hover-lift smooth-transition animate-fadeIn";
             div.innerHTML = `
-            <h3>Pesanan Meja ${o.meja || "-"}</h3>
-            <p style="font-size: 12px; color: #666; margin: 5px 0;">${formatDate(
-              o.createdAt
-            )}</p>
-            <hr>
-            ${o.items
-              .map(
-                (i) => `
-              <div class="order-item">${i.qty}x ${
-                  i.name
-                } - Rp${i.price.toLocaleString()}</div>
-            `
-              )
-              .join("")}
-            ${catatanHTML}
-            <hr>
-            <b>Total: Rp${o.total.toLocaleString()}</b>
-            <div class="actions" style="margin-top: 10px;">
-              <button class="btn-info btn-small" onclick="printStrukGlobal('${orderId}')">🖨️ Cetak Struk</button>
-              <button class="btn-danger btn-small" onclick="deleteOrder('${orderId}')">🗑 Hapus</button>
-            </div>
-          `;
+              <h3 class="text-xl font-bold text-red-900 mb-2">Pesanan Meja ${
+                o.meja || "-"
+              }</h3>
+              <p class="text-sm text-gray-500 mb-3">${formatDate(
+                o.createdAt
+              )}</p>
+              <hr class="mb-3">
+              ${o.items
+                .map(
+                  (i) => `
+                <div class="font-mono my-1">${i.qty}x ${
+                    i.name
+                  } - Rp${i.price.toLocaleString()}</div>
+              `
+                )
+                .join("")}
+              ${catatanHTML}
+              <hr class="my-3">
+              <p class="font-bold text-lg">Total: Rp${o.total.toLocaleString()}</p>
+              <div class="flex gap-2 flex-wrap mt-3">
+                <button class="bg-cyan-600 text-white px-3 py-2 rounded-lg text-sm font-bold hover:bg-cyan-700 smooth-transition transform hover:scale-105 active:scale-95" onclick="printStrukGlobal('${orderId}')">🖨️ Cetak Struk</button>
+                <button class="bg-red-500 text-white px-3 py-2 rounded-lg text-sm font-bold hover:bg-red-600 smooth-transition transform hover:scale-105 active:scale-95" onclick="deleteOrder('${orderId}')">🗑 Hapus</button>
+              </div>
+            `;
             ordersList.appendChild(div);
           });
         });
       }
 
-      // === PRINT STRUK FUNCTION ===
       window.printStrukGlobal = (orderId) => {
         const order = allOrders.find((o) => o.id === orderId);
-        if (order) {
-          printStruk(order, orderId);
-        }
+        if (order) printStruk(order, orderId);
       };
 
-      // === DELETE ORDER ===
       window.deleteOrder = async (id) => {
         if (confirm("Yakin hapus pesanan ini?")) {
           await deleteDoc(doc(db, "orders", id));
@@ -927,20 +730,23 @@
             const menuId = docSnap.id;
 
             const imageHTML = m.imageBase64
-              ? `<img src="${m.imageBase64}" class="menu-image" alt="${m.name}">`
-              : `<div style="width:60px;height:60px;background:#f0f0f0;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#999;">No Image</div>`;
+              ? `<img src="${m.imageBase64}" class="w-16 h-16 object-cover rounded-lg border-2 border-gray-200" alt="${m.name}">`
+              : `<div class="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center text-gray-400">No Image</div>`;
 
             const tr = document.createElement("tr");
+            tr.className = "border-b border-gray-200 hover:bg-gray-50";
             tr.innerHTML = `
-            <td>${imageHTML}</td>
-            <td>${m.name}</td>
-            <td>Rp ${m.price.toLocaleString()}</td>
-            <td>${m.cat}</td>
-            <td class="actions">
-              <button class="btn-small btn-secondary" onclick="editMenu('${menuId}')">✏️ Edit</button>
-              <button class="btn-small btn-danger" onclick="deleteMenu('${menuId}')">🗑️ Hapus</button>
-            </td>
-          `;
+              <td class="p-3">${imageHTML}</td>
+              <td class="p-3">${m.name}</td>
+              <td class="p-3">Rp ${m.price.toLocaleString()}</td>
+              <td class="p-3">${m.cat}</td>
+              <td class="p-3">
+                <div class="flex gap-2 flex-wrap">
+                  <button class="bg-gray-600 text-white px-3 py-2 rounded-lg text-sm font-bold hover:bg-gray-700 transition" onclick="editMenu('${menuId}')">✏️ Edit</button>
+                  <button class="bg-red-500 text-white px-3 py-2 rounded-lg text-sm font-bold hover:bg-red-600 transition" onclick="deleteMenu('${menuId}')">🗑️ Hapus</button>
+                </div>
+              </td>
+            `;
             menuTableBody.appendChild(tr);
           });
         });
@@ -951,11 +757,12 @@
         editingMenuId = null;
         modalTitle.textContent = "Tambah Menu Baru";
         menuForm.reset();
-        imagePreview.style.display = "none";
+        imagePreview.classList.add("hidden");
         uploadedImageBase64 = null;
         uploadArea.querySelector("p").textContent =
           "📷 Klik atau drag foto ke sini";
-        menuModal.classList.add("show");
+        menuModal.classList.remove("hidden");
+        menuModal.classList.add("flex");
       });
 
       // === EDIT MENU ===
@@ -974,11 +781,12 @@
           if (m.imageBase64) {
             uploadedImageBase64 = m.imageBase64;
             imagePreview.src = m.imageBase64;
-            imagePreview.style.display = "block";
+            imagePreview.classList.remove("hidden");
             uploadArea.querySelector("p").textContent = "✓ Foto saat ini";
           }
 
-          menuModal.classList.add("show");
+          menuModal.classList.remove("hidden");
+          menuModal.classList.add("flex");
         }
       };
 
@@ -1009,19 +817,22 @@
           alert("Menu ditambahkan ✅");
         }
 
-        menuModal.classList.remove("show");
+        menuModal.classList.add("hidden");
+        menuModal.classList.remove("flex");
         menuForm.reset();
         uploadedImageBase64 = null;
       });
 
       // === CLOSE MODAL ===
       closeModal.addEventListener("click", () => {
-        menuModal.classList.remove("show");
+        menuModal.classList.add("hidden");
+        menuModal.classList.remove("flex");
       });
 
       menuModal.addEventListener("click", (e) => {
         if (e.target === menuModal) {
-          menuModal.classList.remove("show");
+          menuModal.classList.add("hidden");
+          menuModal.classList.remove("flex");
         }
       });
     </script>
