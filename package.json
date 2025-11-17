@@ -2,11 +2,9 @@
   "name": "model-2",
   "version": "1.0.0",
   "type": "module",
-  "description": "Backend API untuk integrasi Tripay - Bakmi Jogja",
+  "description": "Backend API untuk integrasi Midtrans - Bakmi Jogja",
   "main": "server.js",
   "scripts": {
-    "dev": "tailwindcss -i ./styles.css -o ./output.css --watch",
-    "build": "tailwindcss -i ./styles.css -o ./output.css --minify",
     "start": "node server.js",
     "server": "node server.js",
     "server:dev": "nodemon server.js"
@@ -23,9 +21,6 @@
     "node-fetch": "^3.3.2"
   },
   "devDependencies": {
-    "autoprefixer": "^10.4.21",
-    "nodemon": "^3.0.1",
-    "postcss": "^8.5.6",
-    "tailwindcss": "^3.4.0"
+    "nodemon": "^3.0.1"
   }
 }
