@@ -9,6 +9,7 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 4000;
 
+
 // ==========================================================
 // KONFIGURASI MIDTRANS
 // ==========================================================
@@ -61,11 +62,16 @@ console.log(
 // ==========================================================
 app.use(
   cors({
-    origin: "*",
+    origin: [
+      "http://localhost:8080",
+      "http://127.0.0.1:5500",
+      "https://bakmi-pakde.vercel.app"  // ← Frontend kamu
+    ],
     methods: ["GET", "POST"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: bakmi-backend
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: MIDTRANS_SERVER_KEY
+        sync: false
+      - key: MIDTRANS_CLIENT_KEY
+        sync: false
+      - key: FRONTEND_URL
+        value: https://bakmi-pakde.vercel.app
+      - key: PORT
+        value: 4000
