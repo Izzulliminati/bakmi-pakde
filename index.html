@@ -233,6 +233,69 @@
       border-left-color: #ff9800;
       color: #e65100;
     }
+
+  .add-more-btn {
+  background: #fff;
+  color: #E92227;
+  border: 2px solid #E92227;
+  padding: 12px 15px;
+  border-radius: 8px;
+  width: 100%;
+  margin-top: 10px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 16px;
+  transition: all 0.3s;
+}
+.add-more-btn:hover {
+  background: #E92227;
+  color: white;
+}
+
+.sold-out-badge {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: bold;
+      z-index: 10;
+    }
+    .menu-card.sold-out {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+    .menu-card.sold-out::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.1);
+      border-radius: 1rem;
+    }
+
+    .price-breakdown {
+      background: #f9f9f9;
+      padding: 12px;
+      border-radius: 8px;
+      margin: 10px 0;
+      font-size: 14px;
+    }
+    .price-row {
+      display: flex;
+      justify-content: space-between;
+      margin: 5px 0;
+    }
+    .price-row.total-row {
+      font-size: 18px;
+      font-weight: bold;
+      color: #E92227;
+      border-top: 2px solid #E92227;
+      padding-top: 8px;
+      margin-top: 8px;
+    }
   </style>
 </head>
 
@@ -399,7 +462,7 @@ style="background-image:url('images/image.png'); background-color:rgba(0,0,0,0.5
 <section id="hubungi" class="bg-white py-20">
   <div class="max-w-6xl mx-auto px-6 md:px-10">
 
-    <h2 class="text-3xl font-semibold text-center mb-12 font-['Pacifico']">Contact Us</h2>
+    <h2 class="text-3xl font-semibold text-center mb-12 font-['Pacifico']">Hubungi Kami</h2>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
       
@@ -417,7 +480,7 @@ style="background-image:url('images/image.png'); background-color:rgba(0,0,0,0.5
 
         <div class="bg-gray-100 rounded-xl p-4">
           <h3 class="font-semibold mb-1">Kontak</h3>
-          <p>Whatsapp: 08xxxxxxxxx</p>
+          <p>Whatsapp: 0812-9945-970</p>
         </div>
 
       </div>
@@ -482,7 +545,21 @@ style="background-image:url('images/image.png'); background-color:rgba(0,0,0,0.5
         </div>
       </div>
 
-      <div class="total" id="cartTotal">Total: Rp 0</div>
+      <div class="price-breakdown" id="priceBreakdown">
+        <div class="price-row">
+          <span>Subtotal</span>
+          <span id="subtotalAmount">Rp 0</span>
+        </div>
+        <div class="price-row">
+          <span>Pajak (11%)</span>
+          <span id="taxAmount">Rp 0</span>
+        </div>
+        <div class="price-row total-row">
+          <span>Total</span>
+          <span id="totalAmount">Rp 0</span>
+        </div>
+      </div>
+      <button class="add-more-btn" id="addMoreBtn">+ Tambahkan Menu</button>
       <button class="checkout" id="checkoutBtn">Checkout</button>
     </div>
   </div>
@@ -493,12 +570,22 @@ style="background-image:url('images/image.png'); background-color:rgba(0,0,0,0.5
 
   <script>
   
-  window.addEventListener("load", function() {
+    window.addEventListener("load", function() {
     const preloader = document.getElementById("preloader");
     preloader.classList.add("opacity-0");
     setTimeout(() => {
       preloader.style.display = "none";
-    }, 600); // setelah fade
+      // Auto scroll ke menu section setelah loading
+      const menuSection = document.getElementById("menu");
+      if (menuSection) {
+        setTimeout(() => {
+          window.scrollTo({
+            top: menuSection.offsetTop - 60,
+            behavior: "smooth"
+          });
+        }, 100);
+      }
+    }, 600);
   });
 
     // Hamburger Menu Toggle
@@ -537,8 +624,8 @@ style="background-image:url('images/image.png'); background-color:rgba(0,0,0,0.5
     });
 
   const MIDTRANS_CONFIG = {
-  BACKEND_URL: "https://bakmi-pakde-1.onrender.com/create-transaction",  // ✅ RENDER URL
-  CLIENT_KEY: "Mid-client-dT-387nrVrF0G1nA"
+  BACKEND_URL: "http://localhost:4000/create-transaction",
+  CLIENT_KEY: "Mid-client-dT-387nrVrF0G1nA"  // ← CLIENT KEY YANG BENAR
 };
   </script>
 
@@ -565,6 +652,7 @@ style="background-image:url('images/image.png'); background-color:rgba(0,0,0,0.5
     const cartList = document.getElementById("cartList");
     const cartTotal = document.getElementById("cartTotal");
     const checkoutBtn = document.getElementById("checkoutBtn");
+    const addMoreBtn = document.getElementById("addMoreBtn");
     const mejaInput = document.getElementById("mejaInput");
     const catatanInput = document.getElementById("catatanInput");
     const midtransInfo = document.getElementById("midtransInfo");
@@ -641,7 +729,8 @@ style="background-image:url('images/image.png'); background-color:rgba(0,0,0,0.5
 
       filtered.forEach((item) => {
         const div = document.createElement("div");
-        div.className = "bg-white shadow-lg rounded-2xl p-3 sm:p-4 transition transform hover:-translate-y-2 hover:shadow-2xl duration-300 ease-in-out relative";
+        const isSoldOut = item.available === false;
+        div.className = `menu-card bg-white shadow-lg rounded-2xl p-3 sm:p-4 transition transform hover:-translate-y-2 hover:shadow-2xl duration-300 ease-in-out relative ${isSoldOut ? 'sold-out' : ''}`;
         const price = typeof item.price === 'number' ? item.price : 0;
         
         const imageHTML = item.imageBase64
@@ -649,16 +738,19 @@ style="background-image:url('images/image.png'); background-color:rgba(0,0,0,0.5
           : `<div class="rounded-xl mb-3 w-full h-32 sm:h-40 bg-gray-100 flex items-center justify-center text-4xl sm:text-5xl">${item.emoji || "🍽"}</div>`; 
           
         div.innerHTML = `
+          ${isSoldOut ? '<div class="sold-out-badge">HABIS</div>' : ''}
           ${imageHTML}
           <div class="text-center">
             <div class="font-semibold text-sm sm:text-base md:text-lg mb-2">${item.name}</div>
             <div class="text-[#E92227] font-semibold text-sm sm:text-base">Rp ${price.toLocaleString("id-ID")}</div>
           </div>
-          <button class="addBtn absolute bottom-3 right-3 bg-black text-white w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-lg sm:text-xl font-bold hover:scale-110 transition-transform duration-200 shadow-lg">+</button>
+          ${!isSoldOut ? '<button class="addBtn absolute bottom-3 right-3 bg-black text-white w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-lg sm:text-xl font-bold hover:scale-110 transition-transform duration-200 shadow-lg">+</button>' : ''}
         `;
-        div
-          .querySelector(".addBtn")
-          .addEventListener("click", () => addToCart(item));
+        if (!isSoldOut) {
+          div
+            .querySelector(".addBtn")
+            .addEventListener("click", () => addToCart(item));
+        }
         menuContainer.appendChild(div);
       });
     }
@@ -705,9 +797,9 @@ style="background-image:url('images/image.png'); background-color:rgba(0,0,0,0.5
     }
 
     function updateCart() {
-      cartCount.textContent = cart.reduce((a, b) => a + b.qty, 0);
-      cartList.innerHTML = "";
-      let total = 0;
+        cartCount.textContent = cart.reduce((a, b) => a + b.qty, 0);
+        cartList.innerHTML = "";
+        let subtotal = 0;
 
       if (cart.length === 0) {
           cartList.innerHTML = '<p style="text-align: center; color: #666; padding: 20px 0;">Keranjang kosong.</p>';
@@ -715,8 +807,8 @@ style="background-image:url('images/image.png'); background-color:rgba(0,0,0,0.5
 
       cart.forEach((item) => {
         const price = typeof item.price === 'number' ? item.price : 0;
-        const subtotal = item.qty * price;
-        total += subtotal;
+        const itemSubtotal = item.qty * price;
+        subtotal += itemSubtotal;
         const div = document.createElement("div");
         div.className = "cart-item";
         div.innerHTML = `
@@ -728,7 +820,7 @@ style="background-image:url('images/image.png'); background-color:rgba(0,0,0,0.5
             <button class="qty-btn" data-action="minus">−</button>
             <span style="min-width: 20px; text-align: center; font-weight: 600;">${item.qty}</span>
             <button class="qty-btn" data-action="plus">+</button>
-            <span style="font-weight: bold; min-width: 80px; text-align: right; color: #E92227;">Rp ${subtotal.toLocaleString("id-ID")}</span>
+            <span style="font-weight: bold; min-width: 80px; text-align: right; color: #E92227;">Rp ${itemSubtotal.toLocaleString("id-ID")}</span>
           </div>
         `;
         div
@@ -740,7 +832,12 @@ style="background-image:url('images/image.png'); background-color:rgba(0,0,0,0.5
         cartList.appendChild(div);
       });
 
-      cartTotal.textContent = "Total: Rp " + total.toLocaleString("id-ID");
+      const tax = Math.round(subtotal * 0.11);
+      const total = subtotal + tax;
+      
+      document.getElementById('subtotalAmount').textContent = "Rp " + subtotal.toLocaleString("id-ID");
+      document.getElementById('taxAmount').textContent = "Rp " + tax.toLocaleString("id-ID");
+      document.getElementById('totalAmount').textContent = "Rp " + total.toLocaleString("id-ID");
     }
 
     checkoutBtn.addEventListener("click", async () => {
@@ -767,40 +864,47 @@ style="background-image:url('images/image.png'); background-color:rgba(0,0,0,0.5
         return;
       }
 
-      const total = cart.reduce((a, b) => a + b.qty * (typeof b.price === 'number' ? b.price : 0), 0);
+      const subtotal = cart.reduce((a, b) => a + b.qty * (typeof b.price === 'number' ? b.price : 0), 0);
+      const tax = Math.round(subtotal * 0.11);
+      const total = subtotal + tax;
 
       if (selectedPaymentMethod === "midtrans" && midtransEnabled) {
         await processWithMidtrans(meja, catatan, total);
       } else {
-        await processAsCash(meja, catatan, total);
+        await processAsCash(meja, catatan, subtotal, tax, total);
       }
     });
 
-    async function processAsCash(meja, catatan, total) {
-      try {
-          await addDoc(collection(db, "orders"), {
-            meja,
-            items: cart.map((c) => ({
-              name: c.name,
-              qty: c.qty,
-              price: c.price,
-            })),
-            total,
-            catatan,
-            paymentMethod: "cash",
-            paymentStatus: "pending",
-            createdAt: serverTimestamp(),
-          });
+    async function processAsCash(meja, catatan, subtotal, tax, total) {
+  try {
+      const orderId = `MEJA-${meja}-${Date.now()}`;
+      
+      await addDoc(collection(db, "orders"), {
+        orderId,
+        meja,
+        items: cart.map((c) => ({
+          name: c.name,
+          qty: c.qty,
+          price: c.price,
+        })),
+        subtotal,
+        tax,
+        total,
+        catatan,
+        paymentMethod: "cash",
+        paymentStatus: "pending",
+        createdAt: serverTimestamp(),
+      });
 
           Swal.fire({
-            icon: "success",
-            title: "Pesanan Dikirim!",
-            text: `Pesanan meja ${meja} sudah masuk ke dapur 🍜🔥\nSilakan bayar di kasir (Total: Rp ${total.toLocaleString("id-ID")})`,
-            background: "#fff8f8",
-            color: "#E92227",
-            confirmButtonColor: "#E92227",
-            showConfirmButton: true,
-          });
+  icon: "success",
+  title: "Pesanan Dikirim!",
+  html: `<b>Order ID: ${orderId}</b><br><br>Pesanan meja ${meja} sudah masuk ke dapur 🍜🔥<br>Silakan bayar di kasir<br><br><b>Total: Rp ${total.toLocaleString("id-ID")}</b>`,
+  background: "#fff8f8",
+  color: "#E92227",
+  confirmButtonColor: "#E92227",
+  showConfirmButton: true,
+});
 
           resetCart();
       } catch (e) {
@@ -813,7 +917,7 @@ style="background-image:url('images/image.png'); background-color:rgba(0,0,0,0.5
       }
     }
 
-    async function processWithMidtrans(meja, catatan, total) {
+    async function processWithMidtrans(meja, catatan, subtotal, tax, total) {
   let swalProcess;
   try {
     // Cek apakah Snap.js sudah loaded
@@ -837,7 +941,7 @@ style="background-image:url('images/image.png'); background-color:rgba(0,0,0,0.5
       },
     });
 
-    const orderId = "BAKMI-" + Date.now();
+   const orderId = `MEJA-${meja}-${Date.now()}`;
     
     await addDoc(collection(db, "orders"), {
       orderId,
@@ -847,6 +951,8 @@ style="background-image:url('images/image.png'); background-color:rgba(0,0,0,0.5
         qty: c.qty,
         price: c.price,
       })),
+       subtotal,
+      tax,
       total,
       catatan,
       paymentMethod: "midtrans",
@@ -974,6 +1080,24 @@ style="background-image:url('images/image.png'); background-color:rgba(0,0,0,0.5
     }
 
     cartBtn.addEventListener("click", () => cartModal.classList.add("show"));
+
+
+    addMoreBtn.addEventListener("click", () => {
+      cartModal.classList.remove("show");
+      const menuSection = document.getElementById("menu");
+      if (menuSection) {
+        window.scrollTo({
+          top: menuSection.offsetTop - 60,
+          behavior: "smooth"
+        });
+      }
+    });
+
+
+
+
+
+
     closeModal.addEventListener("click", () =>
       cartModal.classList.remove("show")
     );

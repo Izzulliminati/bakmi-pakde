@@ -529,57 +529,62 @@
 
       // === CETAK STRUK ===
       function printStruk(order, orderId) {
+        const subtotal = order.subtotal || order.total;
+        const tax = order.tax || Math.round(subtotal * 0.11);
+        const total = order.total;
+
+        const displayOrderId =
+          order.orderId || `LEGACY-${orderId.substring(0, 8)}`;
+
         const strukContent = `
-        <div style="font-family: 'Courier New', monospace; width: 80mm; padding: 10px; background: white;">
-          <div style="text-align: center; border-bottom: 2px dashed #000; padding-bottom: 10px; margin-bottom: 10px;">
-            <h2 style="margin: 5px 0; font-size: 18px;">🍜 BAKMI JOGJA</h2>
-            <p style="margin: 2px 0;">Mbah Karso Ngumpet</p>
-            <p style="margin: 2px 0; font-size: 10px;">${formatDate(
-              order.createdAt
-            )}</p>
+  <div style="font-family: 'Courier New', monospace; width: 80mm; padding: 10px; background: white;">
+    <div style="text-align: center; border-bottom: 2px dashed #000; padding-bottom: 10px; margin-bottom: 10px;">
+      <h2 style="margin: 5px 0; font-size: 18px;">🍜 BAKMI JOGJA</h2>
+      <p style="margin: 2px 0;">Mbah Karso Ngumpet</p>
+      <p style="margin: 2px 0; font-size: 10px;">${formatDate(
+        order.createdAt
+      )}</p>
+      <p style="margin: 5px 0; font-size: 9px; font-weight: bold; background: #f0f0f0; padding: 3px;">Order ID: ${displayOrderId}</p>
+    </div>
+      <div style="font-size: 12px;">
+        <p><strong>Meja: ${order.meja}</strong></p>
+        <p style="border-bottom: 1px dashed #000; margin: 5px 0;"></p>
+        
+        ${order.items
+          .map(
+            (item) => `
+          <div style="display: flex; justify-content: space-between; margin: 5px 0;">
+            <span>${item.qty}x ${item.name}</span>
+            <span>Rp ${item.price.toLocaleString()}</span>
           </div>
-          
-          <div style="font-size: 12px;">
-            <p><strong>Meja: ${order.meja}</strong></p>
-            <p style="border-bottom: 1px dashed #000; margin: 5px 0;"></p>
-            
-            ${order.items
-              .map(
-                (item) => `
-              <div style="display: flex; justify-content: space-between; margin: 5px 0;">
-                <span>${item.qty}x ${item.name}</span>
-                <span>Rp ${item.price.toLocaleString()}</span>
-              </div>
-              <div style="text-align: right; font-size: 11px; color: #666;">
-                Subtotal: Rp ${(item.qty * item.price).toLocaleString()}
-              </div>
-            `
-              )
-              .join("")}
-            
-            ${
-              order.catatan
-                ? `
-              <p style="margin-top: 10px; font-size: 11px;">
-                <strong>Catatan:</strong><br>${order.catatan}
-              </p>
-            `
-                : ""
-            }
+          <div style="text-align: right; font-size: 11px; color: #666;">
+            Subtotal: Rp ${(item.qty * item.price).toLocaleString()}
           </div>
-          
-          <div style="border-top: 2px dashed #000; margin-top: 10px; padding-top: 10px; text-align: center;">
-            <div style="font-size: 14px; font-weight: bold; margin: 10px 0;">
-              <div style="display: flex; justify-content: space-between;">
-                <span>TOTAL:</span>
-                <span>Rp ${order.total.toLocaleString()}</span>
-              </div>
-            </div>
-            <p style="margin: 15px 0 5px 0; font-size: 11px;">Terima Kasih!</p>
-            <p style="margin: 0; font-size: 10px;">Selamat Menikmati 😊</p>
+        `
+          )
+          .join("")}
+      </div>
+      
+      <div style="border-top: 2px dashed #000; margin-top: 10px; padding-top: 10px;">
+        <div style="font-size: 12px;">
+          <div style="display: flex; justify-content: space-between; margin: 5px 0;">
+            <span>Subtotal:</span>
+            <span>Rp ${subtotal.toLocaleString()}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin: 5px 0;">
+            <span>Pajak (11%):</span>
+            <span>Rp ${tax.toLocaleString()}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin: 10px 0; font-size: 14px; font-weight: bold; border-top: 2px solid #000; padding-top: 8px;">
+            <span>TOTAL:</span>
+            <span>Rp ${total.toLocaleString()}</span>
           </div>
         </div>
-      `;
+        <p style="margin: 15px 0 5px 0; font-size: 11px; text-align: center;">Terima Kasih!</p>
+        <p style="margin: 0; font-size: 10px; text-align: center;">Selamat Menikmati 😊</p>
+      </div>
+    </div>
+  `;
 
         const strukPrint = document.getElementById("strukPrint");
         strukPrint.innerHTML = strukContent;
@@ -593,6 +598,7 @@
       }
 
       // === EXPORT TO EXCEL ===
+      // === EXPORT TO EXCEL ===
       exportExcelBtn.addEventListener("click", () => {
         if (allOrders.length === 0) {
           alert("Tidak ada data pesanan untuk di-export");
@@ -602,15 +608,31 @@
         const excelData = [];
 
         allOrders.forEach((order) => {
+          // Hitung subtotal & tax (backward compatible untuk order lama)
+          const calculatedSubtotal = order.items.reduce(
+            (sum, item) => sum + item.qty * item.price,
+            0
+          );
+          const orderSubtotal = order.subtotal || calculatedSubtotal;
+          const orderTax = order.tax || Math.round(orderSubtotal * 0.11);
+          const orderTotal = order.total;
+
+          const displayOrderId =
+            order.orderId ||
+            `LEGACY-${order.id ? order.id.substring(0, 8) : "N/A"}`;
+
           order.items.forEach((item, index) => {
             excelData.push({
+              "Order ID": index === 0 ? displayOrderId : "",
               Tanggal: formatDate(order.createdAt),
               "No Meja": order.meja,
               "Nama Menu": item.name,
               Jumlah: item.qty,
               "Harga Satuan": item.price,
-              Subtotal: item.qty * item.price,
-              "Total Pesanan": index === 0 ? order.total : "",
+              "Subtotal Item": item.qty * item.price,
+              "Subtotal Pesanan": index === 0 ? orderSubtotal : "",
+              "Pajak (11%)": index === 0 ? orderTax : "",
+              "Total Pesanan": index === 0 ? orderTotal : "",
               Catatan: index === 0 ? order.catatan || "-" : "",
             });
           });
@@ -618,16 +640,18 @@
 
         const ws = XLSX.utils.json_to_sheet(excelData);
         ws["!cols"] = [
-          { wch: 18 },
-          { wch: 10 },
-          { wch: 25 },
-          { wch: 8 },
-          { wch: 12 },
-          { wch: 12 },
-          { wch: 15 },
-          { wch: 30 },
+          { wch: 22 }, // Order ID
+          { wch: 18 }, // Tanggal
+          { wch: 10 }, // No Meja
+          { wch: 25 }, // Nama Menu
+          { wch: 8 }, // Jumlah
+          { wch: 12 }, // Harga Satuan
+          { wch: 14 }, // Subtotal Item
+          { wch: 16 }, // Subtotal Pesanan
+          { wch: 12 }, // Pajak (11%)
+          { wch: 15 }, // Total Pesanan
+          { wch: 30 }, // Catatan
         ];
-
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Laporan Pesanan");
 
@@ -678,14 +702,23 @@
             const div = document.createElement("div");
             div.className =
               "bg-white rounded-xl p-4 my-4 shadow hover-lift smooth-transition animate-fadeIn";
+            const displayOrderId =
+              o.orderId || `LEGACY-${orderId.substring(0, 8)}`;
+
             div.innerHTML = `
-              <h3 class="text-xl font-bold text-red-900 mb-2">Pesanan Meja ${
-                o.meja || "-"
-              }</h3>
-              <p class="text-sm text-gray-500 mb-3">${formatDate(
-                o.createdAt
-              )}</p>
-              <hr class="mb-3">
+  <div class="flex justify-between items-start mb-3">
+    <div>
+      <h3 class="text-xl font-bold text-red-900">Pesanan Meja ${
+        o.meja || "-"
+      }</h3>
+      <p class="text-xs text-gray-400 font-mono mt-1">ID: ${displayOrderId}</p>
+    </div>
+    <span class="bg-red-900 text-white text-xs px-2 py-1 rounded-full font-semibold">${
+      o.paymentMethod === "midtrans" ? "💳 Transfer" : "💵 Cash"
+    }</span>
+  </div>
+  <p class="text-sm text-gray-500 mb-3">${formatDate(o.createdAt)}</p>
+  <hr class="mb-3">
               ${o.items
                 .map(
                   (i) => `
@@ -697,7 +730,17 @@
                 .join("")}
               ${catatanHTML}
               <hr class="my-3">
-              <p class="font-bold text-lg">Total: Rp${o.total.toLocaleString()}</p>
+<div class="text-sm space-y-1 mb-2">
+  <div class="flex justify-between">
+    <span>Subtotal:</span>
+    <span>Rp${(o.subtotal || o.total).toLocaleString()}</span>
+  </div>
+  <div class="flex justify-between">
+    <span>Pajak (11%):</span>
+    <span>Rp${(o.tax || 0).toLocaleString()}</span>
+  </div>
+</div>
+<p class="font-bold text-lg text-red-900">Total: Rp${o.total.toLocaleString()}</p>
               <div class="flex gap-2 flex-wrap mt-3">
                 <button class="bg-cyan-600 text-white px-3 py-2 rounded-lg text-sm font-bold hover:bg-cyan-700 smooth-transition transform hover:scale-105 active:scale-95" onclick="printStrukGlobal('${orderId}')">🖨️ Cetak Struk</button>
                 <button class="bg-red-500 text-white px-3 py-2 rounded-lg text-sm font-bold hover:bg-red-600 smooth-transition transform hover:scale-105 active:scale-95" onclick="deleteOrder('${orderId}')">🗑 Hapus</button>
@@ -735,6 +778,15 @@
 
             const tr = document.createElement("tr");
             tr.className = "border-b border-gray-200 hover:bg-gray-50";
+
+            const availableStatus = m.available !== false;
+            const toggleButtonClass = availableStatus
+              ? "bg-green-600 hover:bg-green-700"
+              : "bg-gray-500 hover:bg-gray-600";
+            const toggleButtonText = availableStatus
+              ? "✅ Tersedia"
+              : "❌ Habis";
+
             tr.innerHTML = `
               <td class="p-3">${imageHTML}</td>
               <td class="p-3">${m.name}</td>
@@ -743,6 +795,7 @@
               <td class="p-3">
                 <div class="flex gap-2 flex-wrap">
                   <button class="bg-gray-600 text-white px-3 py-2 rounded-lg text-sm font-bold hover:bg-gray-700 transition" onclick="editMenu('${menuId}')">✏️ Edit</button>
+                  <button class="${toggleButtonClass} text-white px-3 py-2 rounded-lg text-sm font-bold transition transform hover:scale-105" onclick="toggleAvailability('${menuId}', ${availableStatus})">${toggleButtonText}</button>
                   <button class="bg-red-500 text-white px-3 py-2 rounded-lg text-sm font-bold hover:bg-red-600 transition" onclick="deleteMenu('${menuId}')">🗑️ Hapus</button>
                 </div>
               </td>
@@ -787,6 +840,18 @@
 
           menuModal.classList.remove("hidden");
           menuModal.classList.add("flex");
+        }
+      };
+
+      window.toggleAvailability = async (id, currentStatus) => {
+        const newStatus = !currentStatus;
+        const statusText = newStatus ? "tersedia" : "habis";
+
+        if (confirm(`Ubah status menu menjadi ${statusText}?`)) {
+          await updateDoc(doc(db, "menu", id), {
+            available: newStatus,
+          });
+          alert(`✅ Menu diubah menjadi ${statusText}`);
         }
       };
 
