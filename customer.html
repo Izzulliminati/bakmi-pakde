@@ -557,6 +557,7 @@
             <span>${item.qty}x ${item.name}</span>
             <span>Rp ${item.price.toLocaleString()}</span>
           </div>
+          ${item.note ? `<div style="font-size: 10px; color: #666; font-style: italic; margin-left: 10px;">📝 ${item.note}</div>` : ''}
           <div style="text-align: right; font-size: 11px; color: #666;">
             Subtotal: Rp ${(item.qty * item.price).toLocaleString()}
           </div>
@@ -705,6 +706,13 @@
             const displayOrderId =
               o.orderId || `LEGACY-${orderId.substring(0, 8)}`;
 
+            const paymentStatusBadge =
+              o.paymentStatus === "paid"
+                ? '<span class="bg-green-600 text-white text-xs px-2 py-1 rounded-full font-semibold ml-2">✅ LUNAS</span>'
+                : o.paymentMethod === "cash"
+                ? '<span class="bg-orange-500 text-white text-xs px-2 py-1 rounded-full font-semibold ml-2">⏳ UNPAID</span>'
+                : "";
+
             div.innerHTML = `
   <div class="flex justify-between items-start mb-3">
     <div>
@@ -722,9 +730,10 @@
               ${o.items
                 .map(
                   (i) => `
-                <div class="font-mono my-1">${i.qty}x ${
-                    i.name
-                  } - Rp${i.price.toLocaleString()}</div>
+                <div class="font-mono my-1">
+                  ${i.qty}x ${i.name} - Rp${i.price.toLocaleString()}
+                  ${i.note ? `<div class="text-xs text-gray-500 italic ml-4">📝 ${i.note}</div>` : ''}
+                </div>
               `
                 )
                 .join("")}
@@ -742,6 +751,9 @@
 </div>
 <p class="font-bold text-lg text-red-900">Total: Rp${o.total.toLocaleString()}</p>
               <div class="flex gap-2 flex-wrap mt-3">
+                ${o.paymentMethod === "cash" && o.paymentStatus !== "paid" 
+                  ? `<button class="bg-green-600 text-white px-3 py-2 rounded-lg text-sm font-bold hover:bg-green-700 smooth-transition transform hover:scale-105 active:scale-95" onclick="markAsPaid('${orderId}')">✅ Tandai Lunas</button>`
+                  : ''}
                 <button class="bg-cyan-600 text-white px-3 py-2 rounded-lg text-sm font-bold hover:bg-cyan-700 smooth-transition transform hover:scale-105 active:scale-95" onclick="printStrukGlobal('${orderId}')">🖨️ Cetak Struk</button>
                 <button class="bg-red-500 text-white px-3 py-2 rounded-lg text-sm font-bold hover:bg-red-600 smooth-transition transform hover:scale-105 active:scale-95" onclick="deleteOrder('${orderId}')">🗑 Hapus</button>
               </div>
@@ -762,6 +774,24 @@
           alert("Pesanan dihapus ✅");
         }
       };
+
+     window.markAsPaid = async (id) => {
+        if (confirm("Tandai pesanan ini sebagai LUNAS?")) {
+          await updateDoc(doc(db, "orders", id), {
+            paymentStatus: "paid"
+          });
+          
+          Swal.fire({
+            icon: "success",
+            title: "Pembayaran Dikonfirmasi!",
+            text: "Pesanan telah ditandai sebagai LUNAS ✅",
+            timer: 2000,
+            showConfirmButton: false
+          });
+        }
+      };
+
+
 
       // === LOAD MENU ===
       function loadMenu() {
