@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>📊 Dashboard Admin - Kelola Menu</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -536,6 +537,22 @@
         const displayOrderId =
           order.orderId || `LEGACY-${orderId.substring(0, 8)}`;
 
+        // ✅ TAMBAHAN: Info kembalian jika ada
+        const paymentInfo = order.cashReceived
+          ? `
+    <div style="border-top: 1px dashed #000; margin-top: 10px; padding-top: 10px; font-size: 12px;">
+      <div style="display: flex; justify-content: space-between; margin: 5px 0;">
+        <span>Uang Diterima:</span>
+        <span>Rp ${order.cashReceived.toLocaleString()}</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; margin: 5px 0; font-weight: bold; color: #059669;">
+        <span>Kembalian:</span>
+        <span>Rp ${order.changeAmount.toLocaleString()}</span>
+      </div>
+    </div>
+  `
+          : "";
+
         const strukContent = `
   <div style="font-family: 'Courier New', monospace; width: 80mm; padding: 10px; background: white;">
     <div style="text-align: center; border-bottom: 2px dashed #000; padding-bottom: 10px; margin-bottom: 10px;">
@@ -557,7 +574,11 @@
             <span>${item.qty}x ${item.name}</span>
             <span>Rp ${item.price.toLocaleString()}</span>
           </div>
-          ${item.note ? `<div style="font-size: 10px; color: #666; font-style: italic; margin-left: 10px;">📝 ${item.note}</div>` : ''}
+          ${
+            item.note
+              ? `<div style="font-size: 10px; color: #666; font-style: italic; margin-left: 10px;">📝 ${item.note}</div>`
+              : ""
+          }
           <div style="text-align: right; font-size: 11px; color: #666;">
             Subtotal: Rp ${(item.qty * item.price).toLocaleString()}
           </div>
@@ -581,6 +602,7 @@
             <span>Rp ${total.toLocaleString()}</span>
           </div>
         </div>
+        ${paymentInfo}
         <p style="margin: 15px 0 5px 0; font-size: 11px; text-align: center;">Terima Kasih!</p>
         <p style="margin: 0; font-size: 10px; text-align: center;">Selamat Menikmati 😊</p>
       </div>
@@ -706,12 +728,16 @@
             const displayOrderId =
               o.orderId || `LEGACY-${orderId.substring(0, 8)}`;
 
-            const paymentStatusBadge =
-              o.paymentStatus === "paid"
-                ? '<span class="bg-green-600 text-white text-xs px-2 py-1 rounded-full font-semibold ml-2">✅ LUNAS</span>'
-                : o.paymentMethod === "cash"
-                ? '<span class="bg-orange-500 text-white text-xs px-2 py-1 rounded-full font-semibold ml-2">⏳ UNPAID</span>'
+            let paymentStatusBadge = "";
+            if (o.paymentStatus === "paid") {
+              const changeInfo = o.changeAmount
+                ? ` (Kembalian: Rp ${o.changeAmount.toLocaleString()})`
                 : "";
+              paymentStatusBadge = `<span class="bg-green-600 text-white text-xs px-2 py-1 rounded-full font-semibold ml-2">✅ LUNAS${changeInfo}</span>`;
+            } else if (o.paymentMethod === "cash") {
+              paymentStatusBadge =
+                '<span class="bg-orange-500 text-white text-xs px-2 py-1 rounded-full font-semibold ml-2">⏳ UNPAID</span>';
+            }
 
             div.innerHTML = `
   <div class="flex justify-between items-start mb-3">
@@ -732,7 +758,11 @@
                   (i) => `
                 <div class="font-mono my-1">
                   ${i.qty}x ${i.name} - Rp${i.price.toLocaleString()}
-                  ${i.note ? `<div class="text-xs text-gray-500 italic ml-4">📝 ${i.note}</div>` : ''}
+                  ${
+                    i.note
+                      ? `<div class="text-xs text-gray-500 italic ml-4">📝 ${i.note}</div>`
+                      : ""
+                  }
                 </div>
               `
                 )
@@ -751,9 +781,11 @@
 </div>
 <p class="font-bold text-lg text-red-900">Total: Rp${o.total.toLocaleString()}</p>
               <div class="flex gap-2 flex-wrap mt-3">
-                ${o.paymentMethod === "cash" && o.paymentStatus !== "paid" 
-                  ? `<button class="bg-green-600 text-white px-3 py-2 rounded-lg text-sm font-bold hover:bg-green-700 smooth-transition transform hover:scale-105 active:scale-95" onclick="markAsPaid('${orderId}')">✅ Tandai Lunas</button>`
-                  : ''}
+                ${
+                  o.paymentMethod === "cash" && o.paymentStatus !== "paid"
+                    ? `<button class="bg-green-600 text-white px-3 py-2 rounded-lg text-sm font-bold hover:bg-green-700 smooth-transition transform hover:scale-105 active:scale-95" onclick="markAsPaid('${orderId}')">✅ Tandai Lunas</button>`
+                    : ""
+                }
                 <button class="bg-cyan-600 text-white px-3 py-2 rounded-lg text-sm font-bold hover:bg-cyan-700 smooth-transition transform hover:scale-105 active:scale-95" onclick="printStrukGlobal('${orderId}')">🖨️ Cetak Struk</button>
                 <button class="bg-red-500 text-white px-3 py-2 rounded-lg text-sm font-bold hover:bg-red-600 smooth-transition transform hover:scale-105 active:scale-95" onclick="deleteOrder('${orderId}')">🗑 Hapus</button>
               </div>
@@ -775,24 +807,82 @@
         }
       };
 
-     window.markAsPaid = async (id) => {
-        if (confirm("Tandai pesanan ini sebagai LUNAS?")) {
+      window.markAsPaid = async (id) => {
+        const order = allOrders.find((o) => o.id === id);
+        if (!order) return;
+
+        const { value: cashReceived } = await Swal.fire({
+          title: "💵 Input Uang Diterima",
+          html: `
+      <div class="text-left">
+        <p class="mb-2"><strong>Total Tagihan:</strong> Rp ${order.total.toLocaleString()}</p>
+        <input id="cashInput" type="number" class="swal2-input" placeholder="Contoh: 50000" style="width: 80%; margin: 0 auto;">
+        <p id="changeDisplay" class="mt-3 text-lg font-bold text-green-600"></p>
+      </div>
+    `,
+          focusConfirm: false,
+          showCancelButton: true,
+          confirmButtonText: "Konfirmasi Lunas",
+          cancelButtonText: "Batal",
+          confirmButtonColor: "#059669",
+          didOpen: () => {
+            const input = document.getElementById("cashInput");
+            const changeDisplay = document.getElementById("changeDisplay");
+
+            input.addEventListener("input", (e) => {
+              const cash = parseInt(e.target.value) || 0;
+              const change = cash - order.total;
+
+              if (cash >= order.total) {
+                changeDisplay.textContent = `Kembalian: Rp ${change.toLocaleString()}`;
+                changeDisplay.style.color = "#059669";
+              } else if (cash > 0) {
+                changeDisplay.textContent = `Kurang: Rp ${(
+                  order.total - cash
+                ).toLocaleString()}`;
+                changeDisplay.style.color = "#dc2626";
+              } else {
+                changeDisplay.textContent = "";
+              }
+            });
+          },
+          preConfirm: () => {
+            const cash = parseInt(document.getElementById("cashInput").value);
+            if (!cash || cash < order.total) {
+              Swal.showValidationMessage(
+                "Uang yang diterima kurang dari total tagihan!"
+              );
+              return false;
+            }
+            return cash;
+          },
+        });
+
+        if (cashReceived) {
+          const change = cashReceived - order.total;
+
           await updateDoc(doc(db, "orders", id), {
-            paymentStatus: "paid"
+            paymentStatus: "paid",
+            cashReceived: cashReceived,
+            changeAmount: change,
+            paidAt: new Date(),
           });
-          
+
           Swal.fire({
             icon: "success",
             title: "Pembayaran Dikonfirmasi!",
-            text: "Pesanan telah ditandai sebagai LUNAS ✅",
-            timer: 2000,
-            showConfirmButton: false
+            html: `
+        <div class="text-left">
+          <p>✅ Pesanan telah LUNAS</p>
+          <hr class="my-3">
+          <p><strong>Diterima:</strong> Rp ${cashReceived.toLocaleString()}</p>
+          <p><strong>Kembalian:</strong> Rp ${change.toLocaleString()}</p>
+        </div>
+      `,
+            confirmButtonColor: "#059669",
           });
         }
       };
-
-
-
       // === LOAD MENU ===
       function loadMenu() {
         const q = query(collection(db, "menu"), orderBy("name", "asc"));

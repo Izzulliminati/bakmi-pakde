@@ -7,7 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
      <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
-    <script 
+ <script 
     src="https://app.sandbox.midtrans.com/snap/snap.js"
     data-client-key="Mid-client-dT-387nrVrF0G1nA">
 </script>
@@ -894,44 +894,93 @@ style="background-image:url('images/image.png'); background-color:rgba(0,0,0,0.5
       document.getElementById('totalAmount').textContent = "Rp " + total.toLocaleString("id-ID");
     }
 
-    checkoutBtn.addEventListener("click", async () => {
-      const meja = mejaInput.value.trim();
-      const catatan = catatanInput.value.trim();
+  checkoutBtn.addEventListener("click", async () => {
+  const meja = mejaInput.value.trim();
+  const catatan = catatanInput.value.trim();
 
-      if (!meja) {
-        Swal.fire({
-          icon: "warning",
-          title: "Nomor Meja Kosong!",
-          text: "Silakan isi nomor meja terlebih dahulu 🍽",
-          confirmButtonColor: "#E92227",
-        });
-        return;
-      }
-
-      if (cart.length === 0) {
-        Swal.fire({
-          icon: "info",
-          title: "Keranjang Kosong!",
-          text: "Tambahkan menu dulu sebelum checkout 😋",
-          confirmButtonColor: "#E92227",
-        });
-        return;
-      }
-
-      const subtotal = cart.reduce((a, b) => a + b.qty * (typeof b.price === 'number' ? b.price : 0), 0);
-      const tax = Math.round(subtotal * 0.11);
-      const total = subtotal + tax;
-
-      if (selectedPaymentMethod === "midtrans" && midtransEnabled) {
-        await processWithMidtrans(meja, catatan, total);
-      } else {
-        await processAsCash(meja, catatan, subtotal, tax, total);
-      }
+  if (!meja) {
+    Swal.fire({
+      icon: "warning",
+      title: "Nomor Meja Kosong!",
+      text: "Silakan isi nomor meja terlebih dahulu 🍽",
+      confirmButtonColor: "#E92227",
     });
+    return;
+  }
+
+  if (cart.length === 0) {
+    Swal.fire({
+      icon: "info",
+      title: "Keranjang Kosong!",
+      text: "Tambahkan menu dulu sebelum checkout 😋",
+      confirmButtonColor: "#E92227",
+    });
+    return;
+  }
+
+  // Hitung subtotal dengan validasi lebih ketat
+  let subtotal = 0;
+  let itemCount = 0;
+  
+  console.log("🛒 Isi Keranjang:");
+  cart.forEach((item, index) => {
+    const itemPrice = typeof item.price === 'number' && !isNaN(item.price) ? item.price : 0;
+    const itemQty = typeof item.qty === 'number' && !isNaN(item.qty) ? item.qty : 0;
+    const itemTotal = itemQty * itemPrice;
+    
+    console.log(`${index + 1}. ${item.name} - Qty: ${itemQty}, Price: ${itemPrice}, Total: ${itemTotal}`);
+    
+    subtotal += itemTotal;
+    itemCount += itemQty;
+  });
+  
+  console.log(`📊 Subtotal: Rp ${subtotal.toLocaleString()}`);
+  
+  // Validasi subtotal
+  if (subtotal <= 0 || isNaN(subtotal)) {
+    Swal.fire({
+      icon: "error",
+      title: "Error Perhitungan!",
+      text: "Total pesanan tidak valid. Silakan cek kembali keranjang Anda.",
+      confirmButtonColor: "#E92227",
+    });
+    console.error("❌ Subtotal tidak valid:", subtotal);
+    return;
+  }
+  
+  const tax = Math.round(subtotal * 0.11);
+  const total = subtotal + tax;
+  
+  console.log(`📊 Tax (11%): Rp ${tax.toLocaleString()}`);
+  console.log(`📊 Total: Rp ${total.toLocaleString()}`);
+  
+  // Validasi final
+  if (total <= 0 || isNaN(total)) {
+    Swal.fire({
+      icon: "error",
+      title: "Error Total!",
+      text: "Total pembayaran tidak valid. Silakan refresh halaman dan coba lagi.",
+      confirmButtonColor: "#E92227",
+    });
+    console.error("❌ Total tidak valid:", { subtotal, tax, total });
+    return;
+  }
+
+  if (selectedPaymentMethod === "midtrans" && midtransEnabled) {
+    await processWithMidtrans(meja, catatan, subtotal, tax, total);
+  } else {
+    await processAsCash(meja, catatan, subtotal, tax, total);
+  }
+});
 
     async function processAsCash(meja, catatan, subtotal, tax, total) {
   try {
-      const orderId = `MEJA-${meja}-${Date.now()}`;
+       const orderId = `MEJA-${meja}-${Date.now()}`;
+      
+      // Pastikan tax tidak undefined
+      const validTax = typeof tax === 'number' ? tax : 0;
+      const validSubtotal = typeof subtotal === 'number' ? subtotal : 0;
+      const validTotal = typeof total === 'number' ? total : 0;
       
       await addDoc(collection(db, "orders"), {
         orderId,
@@ -942,9 +991,9 @@ style="background-image:url('images/image.png'); background-color:rgba(0,0,0,0.5
           price: c.price,
           note: c.note || "",
         })),
-        subtotal,
-        tax,
-        total,
+        subtotal: validSubtotal,
+        tax: validTax,  // ✅ FIXED: Selalu number
+        total: validTotal,
         catatan,
         paymentMethod: "cash",
         paymentStatus: "pending",
@@ -972,10 +1021,9 @@ style="background-image:url('images/image.png'); background-color:rgba(0,0,0,0.5
       }
     }
 
-    async function processWithMidtrans(meja, catatan, subtotal, tax, total) {
+  async function processWithMidtrans(meja, catatan, subtotal, tax, total) {
   let swalProcess;
   try {
-    // Cek apakah Snap.js sudah loaded
     if (typeof window.snap === 'undefined') {
       console.error('❌ Snap.js belum loaded!');
       Swal.fire({
@@ -996,8 +1044,38 @@ style="background-image:url('images/image.png'); background-color:rgba(0,0,0,0.5
       },
     });
 
-   const orderId = `MEJA-${meja}-${Date.now()}`;
+    const orderId = `MEJA-${meja}-${Date.now()}`;
     
+    const validSubtotal = typeof subtotal === 'number' && !isNaN(subtotal) ? subtotal : 0;
+    const validTax = typeof tax === 'number' && !isNaN(tax) ? tax : 0;
+    const validTotal = typeof total === 'number' && !isNaN(total) ? total : 0;
+    
+    if (!cart || cart.length === 0) {
+      throw new Error('Keranjang belanja kosong!');
+    }
+    
+    // ✅ PERBAIKAN: Kirim items dengan harga asli (tanpa pajak)
+    const validatedItems = cart.map(item => {
+      if (!item.name || !item.price || !item.qty) {
+        console.warn('Item tidak valid:', item);
+      }
+      return {
+        name: String(item.name || 'Item'),
+        price: typeof item.price === 'number' && !isNaN(item.price) ? item.price : 0,
+        quantity: typeof item.qty === 'number' && !isNaN(item.qty) ? item.qty : 1
+      };
+    });
+    
+    // ✅ TAMBAHKAN: Item untuk pajak
+    if (validTax > 0) {
+      validatedItems.push({
+        name: "Pajak 11%",
+        price: validTax,
+        quantity: 1
+      });
+    }
+    
+    // Simpan ke Firestore terlebih dahulu
     await addDoc(collection(db, "orders"), {
       orderId,
       meja,
@@ -1005,111 +1083,131 @@ style="background-image:url('images/image.png'); background-color:rgba(0,0,0,0.5
         name: c.name,
         qty: c.qty,
         price: c.price,
+        note: c.note || "",
       })),
-       subtotal,
-      tax,
-      total,
+      subtotal: validSubtotal,
+      tax: validTax,
+      total: validTotal,
       catatan,
       paymentMethod: "midtrans",
       paymentStatus: "unpaid",
       createdAt: serverTimestamp(),
     });
     
+    // ✅ KIRIM TOTAL YANG SUDAH TERMASUK PAJAK
     const requestData = {
-        orderId: orderId,
-        amount: total,
-        customerName: `Meja ${meja}`,
-        orderItems: cart.map(item => ({
-            name: item.name,
-            price: item.price,
-            quantity: item.qty
-        }))
+      orderId: orderId,
+      amount: validTotal,  // ← Total sudah termasuk pajak
+      customerName: `Meja ${meja}`,
+      orderItems: validatedItems  // ← Sudah termasuk item pajak
     };
     
-    console.log("📤 Sending request to backend:", requestData);
+    console.log("📤 Sending request to backend:");
+    console.log(JSON.stringify(requestData, null, 2));
     
+    // Validasi final
+    if (!requestData.orderId) {
+      throw new Error('Order ID tidak valid');
+    }
+    if (!requestData.amount || requestData.amount <= 0) {
+      throw new Error('Total pembayaran tidak valid');
+    }
+    if (!requestData.customerName) {
+      throw new Error('Nama pelanggan tidak valid');
+    }
+    if (!requestData.orderItems || requestData.orderItems.length === 0) {
+      throw new Error('Item pesanan kosong');
+    }
+    
+    // Kirim request ke backend
     const response = await fetch(MIDTRANS_CONFIG.BACKEND_URL, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(requestData)
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify(requestData)
     });
     
+    console.log("📥 Response status:", response.status);
+    
     let result;
-    if (response.ok) {
-        result = await response.json();
-        console.log("✅ Backend response:", result);
+    const contentType = response.headers.get('content-type');
+    
+    if (contentType && contentType.includes('application/json')) {
+      result = await response.json();
+      console.log("✅ Backend response:", result);
     } else {
-        const errorText = await response.text();
-        throw new Error(`Server merespons dengan status ${response.status}: ${errorText.substring(0, 100)}...`);
+      const textResponse = await response.text();
+      console.error("❌ Non-JSON response:", textResponse);
+      throw new Error(`Server merespons dengan format tidak valid: ${textResponse.substring(0, 100)}`);
+    }
+    
+    if (!response.ok) {
+      throw new Error(result.message || `Server error: ${response.status}`);
     }
     
     swalProcess.close();
 
     if (result.success && result.data && result.data.token) {
-        const snapToken = result.data.token;
-        console.log("🎫 Snap Token received:", snapToken.substring(0, 20) + "...");
-        
-        // PENTING: Pastikan snap.pay dipanggil dengan benar
-        try {
-          window.snap.pay(snapToken, {
-              onSuccess: function(result) {
-                  console.log('✅ Payment success:', result);
-                  Swal.fire({
-                      icon: "success",
-                      title: "Pembayaran Berhasil!",
-                      text: `Terima kasih! Pesanan Meja ${meja} sedang diproses.`,
-                      confirmButtonColor: "#E92227",
-                  });
-                  resetCart();
-              },
-              onPending: function(result) {
-                  console.log('⏳ Payment pending:', result);
-                  Swal.fire({
-                      icon: "info",
-                      title: "Menunggu Pembayaran",
-                      text: `Pembayaran untuk Meja ${meja} sedang diproses. Silakan selesaikan pembayaran.`,
-                      confirmButtonColor: "#E92227",
-                  });
-                  resetCart();
-              },
-              onError: function(result) {
-                  console.error('❌ Payment error:', result);
-                  Swal.fire({
-                      icon: "error",
-                      title: "Pembayaran Gagal",
-                      text: "Terjadi kesalahan saat memproses pembayaran. Silakan coba lagi.",
-                      confirmButtonColor: "#E92227",
-                  });
-              },
-              onClose: function() {
-                  console.log('⚠️ Payment popup closed');
-                  Swal.fire({
-                      icon: "warning",
-                      title: "Pembayaran Dibatalkan",
-                      text: "Anda menutup popup pembayaran sebelum menyelesaikan transaksi.",
-                      confirmButtonColor: "#E92227",
-                  });
-              }
+      const snapToken = result.data.token;
+      console.log("🎫 Snap Token received:", snapToken.substring(0, 20) + "...");
+      
+      // Panggil Snap popup
+      window.snap.pay(snapToken, {
+        onSuccess: function(result) {
+          console.log('✅ Payment success:', result);
+          Swal.fire({
+            icon: "success",
+            title: "Pembayaran Berhasil!",
+            html: `<b>Order ID: ${orderId}</b><br><br>Terima kasih! Pesanan Meja ${meja} sedang diproses.`,
+            confirmButtonColor: "#E92227",
           });
-        } catch (snapError) {
-          console.error('❌ Error calling snap.pay:', snapError);
-          throw new Error('Gagal membuka popup pembayaran: ' + snapError.message);
+          resetCart();
+        },
+        onPending: function(result) {
+          console.log('⏳ Payment pending:', result);
+          Swal.fire({
+            icon: "info",
+            title: "Menunggu Pembayaran",
+            text: `Pembayaran untuk Meja ${meja} sedang diproses. Silakan selesaikan pembayaran.`,
+            confirmButtonColor: "#E92227",
+          });
+          resetCart();
+        },
+        onError: function(result) {
+          console.error('❌ Payment error:', result);
+          Swal.fire({
+            icon: "error",
+            title: "Pembayaran Gagal",
+            text: "Terjadi kesalahan saat memproses pembayaran. Silakan coba lagi.",
+            confirmButtonColor: "#E92227",
+          });
+        },
+        onClose: function() {
+          console.log('⚠️ Payment popup closed');
+          Swal.fire({
+            icon: "warning",
+            title: "Pembayaran Dibatalkan",
+            text: "Anda menutup popup pembayaran sebelum menyelesaikan transaksi.",
+            confirmButtonColor: "#E92227",
+          });
         }
-        
+      });
+      
     } else {
-        throw new Error(result.message || 'Gagal membuat transaksi Midtrans.');
+      throw new Error(result.message || 'Gagal membuat transaksi Midtrans.');
     }
 
   } catch (error) {
     if(swalProcess) swalProcess.close();
     
     console.error("❌ Midtrans Process Error:", error);
+    console.error("Error stack:", error.stack);
     
     let customErrorMessage;
     if (error.message && error.message.includes('Failed to fetch')) {
-      customErrorMessage = "Gagal terhubung ke server backend. Pastikan server Node.js berjalan!"; 
+      customErrorMessage = "Gagal terhubung ke server backend. Pastikan server Node.js berjalan di http://localhost:4000"; 
     } else if (error.message && error.message.includes('Snap.js belum loaded')) {
       customErrorMessage = "Snap.js belum siap. Silakan refresh halaman dan coba lagi.";
     } else {
@@ -1119,12 +1217,17 @@ style="background-image:url('images/image.png'); background-color:rgba(0,0,0,0.5
     Swal.fire({
       icon: "error",
       title: "Error Pembayaran",
-      text: customErrorMessage,
+      html: `<div style="text-align: left;">
+        <p><strong>Pesan Error:</strong></p>
+        <p style="font-size: 14px; color: #666;">${customErrorMessage}</p>
+        <hr>
+        <p style="font-size: 12px; color: #999;">Jika masalah berlanjut, silakan hubungi admin.</p>
+      </div>`,
       confirmButtonColor: "#E92227",
     });
   }
 }
-
+////////
     function resetCart() {
       cart = [];
       mejaInput.value = "";

@@ -5,16 +5,14 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-
 const app = express();
 const PORT = process.env.PORT || 4000;
 
-
 // ==========================================================
-// KONFIGURASI MIDTRANS
+// ✅ KONFIGURASI MIDTRANS - DIPERBAIKI
 // ==========================================================
 const MIDTRANS_CONFIG = {
-  isProduction: false, // ✅ SET TRUE karena credential Anda adalah PRODUCTION
+  isProduction: false, // ✅ SANDBOX mode
   serverKey: process.env.MIDTRANS_SERVER_KEY || "Mid-server-XXXX",
   clientKey: process.env.MIDTRANS_CLIENT_KEY || "Mid-client-XXXX",
 };
@@ -44,34 +42,20 @@ const snap = new midtransClient.Snap({
 });
 
 console.log("\n🔧 Konfigurasi Midtrans:");
-console.log(
-  "   Server Key:",
-  MIDTRANS_CONFIG.serverKey.substring(0, 20) + "..."
-);
-console.log(
-  "   Client Key:",
-  MIDTRANS_CONFIG.clientKey.substring(0, 20) + "..."
-);
-console.log(
-  "   Mode:",
-  MIDTRANS_CONFIG.isProduction ? "🚀 PRODUCTION" : "🧪 SANDBOX"
-);
+console.log("   Server Key:", MIDTRANS_CONFIG.serverKey.substring(0, 20) + "...");
+console.log("   Client Key:", MIDTRANS_CONFIG.clientKey.substring(0, 20) + "...");
+console.log("   Mode:", MIDTRANS_CONFIG.isProduction ? "🚀 PRODUCTION" : "🧪 SANDBOX");
 
 // ==========================================================
 // MIDDLEWARE
 // ==========================================================
 app.use(
   cors({
-    origin: [
-      "http://localhost:8080",
-      "http://127.0.0.1:5500",
-      "https://bakmi-pakde.vercel.app"  // ← Frontend kamu
-    ],
+    origin: "*",
     methods: ["GET", "POST"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -113,120 +97,121 @@ app.get("/test", (req, res) => {
   });
 });
 
-// ✅ ENDPOINT BARU: Test Midtrans Connection
-app.get("/test-midtrans", async (req, res) => {
-  try {
-    // Test dengan transaksi dummy
-    const testOrderId = `TEST-${Date.now()}`;
-    const parameter = {
-      transaction_details: {
-        order_id: testOrderId,
-        gross_amount: 10000,
-      },
-      customer_details: {
-        first_name: "Test Customer",
-        email: "test@example.com",
-        phone: "081234567890",
-      },
-      item_details: [
-        {
-          id: "test-item",
-          price: 10000,
-          quantity: 1,
-          name: "Test Item",
-        },
-      ],
-    };
-
-    const transaction = await snap.createTransaction(parameter);
-
-    res.json({
-      success: true,
-      message: "✅ Koneksi ke Midtrans berhasil!",
-      test_order_id: testOrderId,
-      token_received: !!transaction.token,
-      mode: MIDTRANS_CONFIG.isProduction ? "production" : "sandbox",
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "❌ Gagal koneksi ke Midtrans",
-      error: error.message,
-      details: error.ApiResponse || null,
-    });
-  }
-});
-
 // ==========================================================
-// ENDPOINT UNTUK MEMBUAT TRANSAKSI MIDTRANS
+// ✅ ENDPOINT CREATE TRANSACTION - DIPERBAIKI
 // ==========================================================
 app.post("/create-transaction", async (req, res) => {
   try {
-    const { orderId, amount, customerName, orderItems, paymentMethod } =
-      req.body;
-
-    // ✅ Buat Order ID yang unik dengan timestamp
-    const uniqueOrderId = `${orderId}-${Date.now()}`;
+    const { orderId, amount, customerName, orderItems } = req.body;
 
     console.log("\n💰 Membuat transaksi baru:");
-    console.log("   Order ID:", uniqueOrderId);
+    console.log("   Order ID:", orderId);
     console.log("   Amount:", amount);
     console.log("   Customer:", customerName);
-    console.log("   Items:", orderItems?.length || 0);
+    console.log("   Items:", orderItems);
 
-    // Validasi input
-    if (!orderId || !amount || !customerName || !orderItems) {
-      console.error("❌ Data tidak lengkap");
+    // ✅ Validasi input lengkap
+    if (!orderId) {
       return res.status(400).json({
         success: false,
-        message:
-          "Data tidak lengkap. Pastikan orderId, amount, customerName, dan orderItems terisi.",
+        message: "orderId tidak boleh kosong",
       });
     }
 
-    // Validasi amount
-    if (typeof amount !== "number" || amount <= 0) {
+    if (!amount || typeof amount !== "number" || amount <= 0) {
       return res.status(400).json({
         success: false,
-        message: "Amount harus berupa angka positif",
+        message: "amount harus berupa angka positif",
       });
     }
 
-    // Cek apakah credentials sudah diisi
+    if (!customerName) {
+      return res.status(400).json({
+        success: false,
+        message: "customerName tidak boleh kosong",
+      });
+    }
+
+    if (!orderItems || !Array.isArray(orderItems) || orderItems.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "orderItems harus berupa array yang tidak kosong",
+      });
+    }
+
+    // ✅ Validasi setiap item
+    for (let i = 0; i < orderItems.length; i++) {
+      const item = orderItems[i];
+      if (!item.name || !item.price || !item.quantity) {
+        return res.status(400).json({
+          success: false,
+          message: `Item ke-${i + 1} tidak valid. Pastikan ada name, price, dan quantity`,
+        });
+      }
+      if (typeof item.price !== "number" || item.price <= 0) {
+        return res.status(400).json({
+          success: false,
+          message: `Item ke-${i + 1} (${item.name}): price harus angka positif`,
+        });
+      }
+      if (typeof item.quantity !== "number" || item.quantity <= 0) {
+        return res.status(400).json({
+          success: false,
+          message: `Item ke-${i + 1} (${item.name}): quantity harus angka positif`,
+        });
+      }
+    }
+
+    // Cek credentials
     if (MIDTRANS_CONFIG.serverKey.includes("XXXX")) {
       return res.status(500).json({
         success: false,
-        message:
-          "Midtrans credentials belum dikonfigurasi. Cek console server untuk instruksi.",
+        message: "Midtrans credentials belum dikonfigurasi. Cek console server untuk instruksi.",
       });
     }
 
-    // Siapkan Payload untuk Midtrans Snap
+    // ✅ Format item_details sesuai spesifikasi Midtrans
+    const itemDetails = orderItems.map((item) => ({
+      id: item.name.replace(/\s+/g, "-").toLowerCase().substring(0, 50), // Max 50 char
+      price: Math.round(item.price), // ✅ Harus integer
+      quantity: Math.round(item.quantity), // ✅ Harus integer
+      name: item.name.substring(0, 50), // Max 50 char
+    }));
+
+    // ✅ Verifikasi gross_amount = sum(price * quantity)
+    const calculatedAmount = itemDetails.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    );
+
+    if (Math.abs(calculatedAmount - amount) > 1) {
+      console.error("❌ Amount mismatch!");
+      console.error("   Sent amount:", amount);
+      console.error("   Calculated:", calculatedAmount);
+      return res.status(400).json({
+        success: false,
+        message: `Amount tidak sesuai. Dikirim: ${amount}, Seharusnya: ${calculatedAmount}`,
+      });
+    }
+
+    // ✅ Siapkan parameter untuk Midtrans
     const parameter = {
       transaction_details: {
-        order_id: uniqueOrderId, // ✅ Gunakan uniqueOrderId
-        gross_amount: amount,
+        order_id: orderId,
+        gross_amount: Math.round(amount), // ✅ Harus integer
       },
       customer_details: {
         first_name: customerName,
         email: "customer@bakmijogja.com",
         phone: "081234567890",
       },
-      item_details: orderItems.map((item) => ({
-        id: item.name.replace(/\s+/g, "-").toLowerCase(),
-        price: item.price,
-        quantity: item.quantity,
-        name: item.name,
-      })),
-      enabled_payments: paymentMethod ? [paymentMethod] : undefined,
-      callbacks: {
-        finish: process.env.FRONTEND_URL || "http://localhost:8080",
-      },
+      item_details: itemDetails,
     };
 
-    console.log("📤 Mengirim request ke Midtrans Snap API...");
+    console.log("📤 Parameter ke Midtrans:");
+    console.log(JSON.stringify(parameter, null, 2));
 
-    // Buat transaksi dengan Midtrans Snap
+    // Buat transaksi
     const transaction = await snap.createTransaction(parameter);
 
     console.log("✅ Transaksi berhasil dibuat!");
@@ -238,24 +223,21 @@ app.post("/create-transaction", async (req, res) => {
       data: {
         token: transaction.token,
         redirect_url: transaction.redirect_url,
-        order_id: uniqueOrderId, // ✅ Kirim order_id ke frontend
+        order_id: orderId,
       },
     });
+
   } catch (error) {
     console.error("\n❌ Midtrans Integration Error:");
     console.error("   Message:", error.message);
 
     if (error.httpStatusCode) {
       console.error("   Status Code:", error.httpStatusCode);
-      console.error(
-        "   API Response:",
-        JSON.stringify(error.ApiResponse, null, 2)
-      );
+      console.error("   API Response:", JSON.stringify(error.ApiResponse, null, 2));
 
       res.status(error.httpStatusCode).json({
         success: false,
-        message:
-          error.ApiResponse?.status_message || "Gagal menghubungi Midtrans API",
+        message: error.ApiResponse?.status_message || "Gagal menghubungi Midtrans API",
         details: error.ApiResponse,
       });
     } else {
@@ -275,7 +257,7 @@ app.post("/midtrans-notification", async (req, res) => {
   try {
     const notification = req.body;
 
-    console.log("\n🔔 Notification diterima dari Midtrans");
+    console.log("\n📢 Notification diterima dari Midtrans");
     console.log("   Order ID:", notification.order_id);
     console.log("   Transaction Status:", notification.transaction_status);
     console.log("   Fraud Status:", notification.fraud_status);
@@ -345,14 +327,10 @@ app.listen(PORT, () => {
   console.log("   Midtrans Backend Server STARTED");
   console.log("   ============================================");
   console.log(`   🌐 URL: http://localhost:${PORT}`);
-  console.log(`   📍 Test: GET http://localhost:${PORT}/test`);
-  console.log(`   📍 Create Transaction: POST /create-transaction`);
-  console.log(`   📍 Webhook: POST /midtrans-notification`);
-  console.log(
-    `   🔧 Mode: ${
-      MIDTRANS_CONFIG.isProduction ? "🚀 PRODUCTION" : "🧪 SANDBOX"
-    }`
-  );
+  console.log(`   🔍 Test: GET http://localhost:${PORT}/test`);
+  console.log(`   📝 Create Transaction: POST /create-transaction`);
+  console.log(`   📢 Webhook: POST /midtrans-notification`);
+  console.log(`   🔧 Mode: ${MIDTRANS_CONFIG.isProduction ? "🚀 PRODUCTION" : "🧪 SANDBOX"}`);
   console.log("   ============================================");
 
   if (MIDTRANS_CONFIG.serverKey.includes("XXXX")) {
